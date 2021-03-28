@@ -17,7 +17,7 @@ import {
 
 function MainContent(props) {
   let { path } = useRouteMatch();
-  console.log('path', path)
+  // console.log('path', path)
 
   return (
     <div id="MainContent">
@@ -30,9 +30,10 @@ function MainContent(props) {
           }
         </Route>
         <Route path={`${path}/Label/:articleId`}>
-          <ParagraphCards />
+          <ParagraphCards type={props.type}/>
         </Route>
         <Route path={`${path}/Label`}>
+          {console.info(props.type)}
           <TitleCards type={props.type} />
         </Route>
         <Route path={`${path}/Validation`} component={MRCValidation} />

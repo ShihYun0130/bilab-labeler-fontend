@@ -7,7 +7,7 @@ import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
 import { useSelector} from 'react-redux';
 
-function ParagraphCards() {
+function ParagraphCards(props) {
   let history = useHistory();
   let { url } = useRouteMatch();
   let { articleId } = useParams();
@@ -30,7 +30,28 @@ function ParagraphCards() {
       setArticleTitle(response.data.articleTitle);
       // setqaList(response.data.qaList)
     }
-    getSetParagraphs();
+    const getSetSentiParagraphs = async () => {
+      let actionURL = BASEURL + '/sentiTasks'
+      let arg = {
+        "userId": profileObj.googleId,
+        "taskType": "sentiment",
+        "articleId": articleId
+      }
+      const response = await axios.post(actionURL, arg)
+      // console.log('res', response)
+      setParagraphs(response.data.taskList);
+      setArticleTitle(response.data.articleTitle);
+      // setqaList(response.data.qaList)
+    }
+    // getSetParagraphs();
+    // console.info(url)
+    if (!props.type || props.type === "MRC") {
+      getSetParagraphs();
+    } 
+    else if (props.type === "Sentimental") {
+      getSetSentiParagraphs(); 
+    } 
+    
   }, [articleId, profileObj.googleId])
 
   // When api not get responding
