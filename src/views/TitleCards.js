@@ -20,12 +20,26 @@ function TitleCards(props) {
       }
       const response = await axios.post(actionURL, arg)
       setArticles(response.data);
+      // console.info(articles)
   
     }
-
+    const getSentiArticles = async() => {
+      let actionURL = BASEURL + '/sentiArticles'
+      let arg = {
+        "userId": profileObj.googleId,
+      }
+      const response = await axios.post(actionURL, arg)
+      setArticles(response.data);
+  
+    }
+    // console.info(props.type)
     if (!props.type || props.type === "MRC") {
       getArticles();
-    } else {
+    } 
+    else if (props.type === "Sentimental") {
+      getSentiArticles();  
+    } 
+    else {
       setArticles(fakeSentimentalTitles)
     }
   }, [props.type, profileObj.googleId]);

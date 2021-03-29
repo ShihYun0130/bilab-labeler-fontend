@@ -1,10 +1,13 @@
 import { Link, useRouteMatch, useHistory } from "react-router-dom";
 import './SentiLabeling.css'
-import { fakeQuestionsHistory } from './fakeData'
 import { fakeAspectPool } from './fakeData'
-import {useState} from 'react';
+import {useEffect, useState} from 'react';
+import axios from 'axios';
+import { BASEURL } from "../config";
 import { makeStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
+import { useSelector} from 'react-redux';
+
 
 const useStyles = makeStyles((theme) => ({
     root: {
@@ -20,9 +23,12 @@ const useStyles = makeStyles((theme) => ({
 function SentiLabeling() {
   let history = useHistory();
   let { params } = useRouteMatch();
+  let { articleId, idx } = params;
   let {articleTitle, paragraph} = params;
   const [isFixedAnswer, setIsFixedAnswer] = useState(true);
 
+  const [tempPool, setTempPool] = useState([]);
+  const [majorAspectPool, setMajorAspectPool] = useState([]);
   const [majorAspect, setMajorAspect] = useState("");
   const [minorAspect, setMinorAspect] = useState({offset:"", text:""});
   const [sentimentList, setSentimentList] = useState([]);
@@ -32,11 +38,63 @@ function SentiLabeling() {
   const [sentiButtonCss, setSentiButtonCss] = useState({status:0, css:"sentiment-label-button"});
   const [startId, setStartId] = useState(0);
 
-  const fakePool = fakeAspectPool;
+  const profileObj = useSelector(state => state.profileObj);
+  const [task, setTask] = useState();
   const maxParagraph = 10;
 
   const classes = useStyles();
+  const taskInfo = JSON.parse(sessionStorage.getItem('paragraph'));
 
+  useEffect(() => {
+    const getSentiTask = async () => {
+      let idNo = articleId.replace("articleId", "")
+      let taskId = "taskId"+idNo+"-"+idx
+      const arg = {
+        articleId: articleId,
+        taskId: taskId,
+        taskType: "sentiment",
+        userId: profileObj.googleId
+      }
+      // console.log("getSentiTask arg", arg)
+      const res = await axios.post(`${BASEURL}/getSentiTask`, arg);
+      // console.log('labeling: getSentiTask api', res);
+      setTask(res.data);
+      setTempPool(res.data.aspectPool);
+
+    }
+    getSentiTask();
+  }, [articleId, idx, profileObj.googleId])
+
+  const saveAnswer = async () => {
+    let newAspectList = []
+    let newSentiList = []
+    let idNo = articleId.replace("articleId", "")
+    let taskId = "taskId"+idNo+"-"+idx
+    totalAnswer.map((oneAspect, idx) => {
+      newAspectList = [...newAspectList, {
+        taskId: taskId.toString(), 
+        aspectId: oneAspect.id.toString(),
+        offset: oneAspect.minorAspect.offset,
+        majorAspect:oneAspect.majorAspect,
+        minorAspect:oneAspect.minorAspect.text
+      }]
+      oneAspect.sentimentList.map((oneSenti, idx) =>{
+        newSentiList = [...newSentiList,{
+          taskId: taskId.toString(), 
+          aspectId: oneAspect.id.toString(),
+          offset: oneSenti.offset,
+          sentiment: oneSenti.text,
+          dir: oneSenti.dir
+        }]
+      })
+    })
+    // console.info(newAspectList);
+    // console.info(newSentiList);
+    let newAnswer = {aspect:newAspectList, sentiment:newSentiList}
+    const res = await axios.post(`${BASEURL}/saveSentiAnswer`, newAnswer)
+    console.log('sentiLabeling: saveAnswer api', res)
+  }
+  
   const chooseMajor = (major) => {
     setMajorAspect(major)
     // console.info(majorAspect);
@@ -72,7 +130,7 @@ function SentiLabeling() {
       return sentiment_item;
       // console.info(sentimentList)
     });
-    console.info(newList)
+    // console.info(newList)
     setSentimentList(newList)
   }
   const deleteMinor = () => {
@@ -171,14 +229,36 @@ function SentiLabeling() {
         return
     }
   };
-  const resetAnswer = () => {
-    setTotalAnswer([]);
-    setMajorAspect("");
-    setMinorAspect({offset:"", text:""});
-    setSentimentList([]);
-    setAspectButtonCss({status:0, css:"aspect-label-button"});
-    setSentiButtonCss({status:0, css:"sentiment-label-button"});
-    setStartId(0);
+  const resetAnswer = (isLast) => {
+    if(totalAnswer.length !== 0){
+      saveAnswer();
+      setTotalAnswer([]);
+      setMajorAspect("");
+      setMinorAspect({offset:"", text:""});
+      setSentimentList([]);
+      setAspectButtonCss({status:0, css:"aspect-label-button"});
+      setSentiButtonCss({status:0, css:"sentiment-label-button"});
+      setStartId(0);
+      if(isLast == 1){
+        history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
+      }
+    }
+    else{
+      alert('提醒：您並未標注任何情感字詞喔！')
+      setTotalAnswer([]);
+      setMajorAspect("");
+      setMinorAspect({offset:"", text:""});
+      setSentimentList([]);
+      setAspectButtonCss({status:0, css:"aspect-label-button"});
+      setSentiButtonCss({status:0, css:"sentiment-label-button"});
+      setStartId(0);
+      if(isLast == 1){
+        history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
+      }
+
+    }
+    
+    
   }
   const saveOneSet = () => {
     if((majorAspect !== "") && (minorAspect.offset !== "") && (sentimentList.length !== 0)){
@@ -199,64 +279,22 @@ function SentiLabeling() {
     return;
   }
 
-
-  // textarea to be editable
-
-  // handle selection answers fixed
-  // const handleAnswerFixed = () => {
-  //     if(answer === ""){
-  //       alert("請以反白方式選擇內文再點選完成標註");
-  //       return
-  //     }
-
-  //     setIsFixedAnswer(!isFixedAnswer)
-  //     if(isFixedAnswer){
-  //       setLabelButtonCss("label-button justify-center nowrap light-green")
-  //       setButtonString("重新標記")
-  //     }
-  //     else{
-  //       setLabelButtonCss("label-button justify-center nowrap")
-  //       setButtonString("標記答案")
-  //     }
-  //   }
-  
-  // const handleNewQuestion = () => {
-  //   if(question === "" || answer === ""){
-  //     alert("請輸入完整的問題與答案!")
-  //     return
-  //   }
-  //   //[TODO]: post data
-  //   let args = {
-  //     question: question,
-  //     answerString: answer,
-  //     answerStart: startIndex,
-  //   };
-  //   console.log(args);
-
-  //   // re-init answers and questions
-  //   setAnswer("");
-  //   setStartIndex(0);
-  //   setQuestion("");
-  // }
-
   return (
     <div id="SentiLabeling" className="justify-center">
       <div className="senti-working-area-container overflow-scroll">
-        <div className="senti-back-button" onClick={() => history.push(`/MRC/Label/${articleTitle}`)}>〈 回上一層 </div>
-        <div className="senti-working-article-title body-padding">我要重寫 sentiment 的頁面囉</div>
-        <div className="senti-working-article-content body-padding" onMouseUp={mouseUpHandler}>健康老化有不少成功範例，例如被稱為「最帥大爺」的王德順，出生於1936年，
-          理應是一位八旬長者，但他完全顛覆傳統對於八旬老翁的形象，有個性的白髮與歷經風霜的堅毅表情，
-          還有讓許多中年男子羨慕的好身材——精壯的身形與肌肉，這是他自五十歲開始持續的健身成果。
-          並不是每個人都必須仿效他的生活，而是他完全顛覆一個八十歲長者的生活樣貌，
-          他持續工作、享受生活、與妻子旅遊，實現真正不受年齡限制的人生。</div>
+        <div className="senti-back-button" onClick={() => history.push(`/Sentimental/Label/${articleTitle}`)}>〈 回上一層 </div>
+        <div className="senti-working-article-title body-padding">{task ? task.taskTitle : ""}</div>
+        <div className="senti-working-article-content body-padding" onMouseUp={mouseUpHandler}>{task ? task.context : ""}</div>
         
         {/* aspectPool */}
         <div className="justify-start mb-30 body-padding">
             <div className="pool-title justify-start" > 選擇想要標註的 Aspect Group： </div>
         </div>
         <div className={classes.root}>
-            {fakePool.map((majorAspect, idx) => (
-                <Chip label={majorAspect.majorAspect} onClick={() => chooseMajor(majorAspect.majorAspect)} variant="outlined"/>
+            {/* {console.info(task ? task.aspectPool : "")} */}
+            
+            {tempPool.map((majorAspect, idx) => (
+                <Chip label={majorAspect} onClick={() => chooseMajor(majorAspect)} variant="outlined"/>
             ))}
         </div>
         <div style={{"margin-top" : "50px"}}></div>
@@ -305,7 +343,7 @@ function SentiLabeling() {
 
       {/* 右側資料 */}
       <div className="senti-question-history-container align-start">
-        <div className="justify-center senti-question-title">提問紀錄</div>
+        <div className="justify-center senti-question-title">已標記內容</div>
         <div className="overflow-scroll">
           {totalAnswer.map((answerItem, idx) => (
             <div key={idx} onClick={() => deleteHistory(answerItem.id)} className="mb-15 single-aspect-block">
@@ -319,10 +357,17 @@ function SentiLabeling() {
             </div>
           ))}
         </div>
-        {(paragraph <= maxParagraph) ? 
-            (<Link to={`/MRC/Label/${articleTitle}/${parseInt(paragraph)+1}`}>
+        
+        {(idx < taskInfo.totalTaskNum-1) &&
+          <div onClick = {() => resetAnswer(1)} className="finish-button">標註完成，前往下一段</div>
+        }
+        {(idx == taskInfo.totalTaskNum-1) &&
+          <div onClick = {() => resetAnswer(0)} className="finish-button">標註完成</div>
+        }
+        {/* {(paragraph <= maxParagraph) ? 
+            (<Link to={`/Sentimental/Label/${articleTitle}/${parseInt(paragraph)+1}`}>
               <div onClick = {() => resetAnswer()} className="finish-button">標註完成，前往下一段</div>
-            </Link>):null}
+            </Link>):null} */}
       </div>
     </div>
   )
