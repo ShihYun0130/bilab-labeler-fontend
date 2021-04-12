@@ -2,15 +2,11 @@ import './ParagraphCards.css'
 import './ProjectManagePage.css'
 import './Labeling.css'
 import 'react-responsive-modal/styles.css';
-import Loader from "react-loader-spinner";
-import { Modal } from 'react-responsive-modal';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
-import AddProjectPage from './AddProjectPage' // temp
 import { BASEURL } from "../config"
 import { useState, useEffect } from "react"
-import { useSelector} from 'react-redux'
 import axios from 'axios'
 
 function EditProjectPage(props) {
