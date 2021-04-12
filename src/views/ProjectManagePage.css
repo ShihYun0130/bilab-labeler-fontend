@@ -1,0 +1,106 @@
+#project {
+    padding: 0 14%;
+    padding-top: 90px;
+    color: #555555;
+  }
+  
+.project-working-area {
+    width: 65vw;
+  }
+
+.modal-container {
+  width: 500px;
+  padding: 0 50px;
+}
+
+.list-item {
+  background: white;
+  cursor: pointer;
+  font-size: 16px;
+  border-radius: 0 0.5rem 0.5rem 0.5rem;
+  box-shadow: 0.25rem 0.25rem 0.6rem rgba(0,0,0,0.05), 0 0.5rem 1.125rem rgba(46, 0, 0, 0.06);
+  margin-top: 1rem;
+  padding: 1rem 1rem 1rem 1rem;
+  width: 40%;
+  position: relative;
+}
+
+.add-btn {
+  cursor: pointer;
+  width: 110px;
+  padding: 5px;
+  box-shadow: 0px 3px 6px #00000029;
+  border: 1px solid #888888;
+  border-radius: 10px;
+  opacity: 1;
+  display: flex;
+  text-align: center;
+  font: normal normal bold 14px/17px Helvetica Neue;
+  letter-spacing: 0px;
+  color: #888888;
+  opacity: 1;
+  justify-content: center;
+  align-items: center;
+  margin-top:20px;
+  user-select: none;
+  transition: 0.5s;
+}
+
+.add-btn:hover {
+  cursor: pointer;
+  background-color: #888888;
+  color: white;
+}
+.role {
+  font-size: 16.5px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+  color:rgb(121, 121, 122)
+}
+.select {
+  font-size: 16.5px;
+  display: flex;
+  justify-content: space-between;
+  font-weight: 500;
+}
+.save-btn{
+  cursor: pointer;
+  color: white;
+  font-weight: bold;
+  border-radius: 15px;
+  background-color: #4D87EB;
+  width: 50px;
+  height: 40px;
+}
+.form-textarea {
+  width: 100%;
+  border-radius: 10px;
+  resize: none;
+  font-size: 16px;
+  padding: 8px 14px;
+  outline: none;
+  color: #555555;
+  border: 1px solid #aaaaaa;
+}
+.h20 {
+  height: 20px;
+}
+.h80 {
+  height: 160px;
+}
+.mt-5 {
+  margin-top: 5px;
+}
+.mt-20 {
+  margin-top: 20px;
+}
+.ml-10 {
+  margin-left: 10px;
+}
+.ml-20 {
+  margin-left: 20px;
+}
+.ml-40 {
+  margin-left: 40px;
+}

@@ -6,11 +6,19 @@ import axios from "axios";
 import Loader from "react-loader-spinner";
 import { fakeSentimentalTitles } from './fakeData'
 import { useSelector} from 'react-redux';
+import ErrorOutlineRoundedIcon from '@material-ui/icons/ErrorOutlineRounded';
+import 'react-responsive-modal/styles.css';
+import { Modal } from 'react-responsive-modal';
 
 function TitleCards(props) {
   let { path } = useRouteMatch();
   const [articles, setArticles] = useState();
   const profileObj = useSelector(state => state.profileObj);
+  const [labelInfo, setLabelInfo] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const onOpenModal = () => setOpen(true);
+  const onCloseModal = () => setOpen(false);
 
   useEffect(() => {
     const getArticles = async() => {
@@ -19,8 +27,8 @@ function TitleCards(props) {
         "userId": profileObj.googleId,
       }
       const response = await axios.post(actionURL, arg)
-      setArticles(response.data);
-      // console.info(articles)
+      setArticles(response.data.articleList);
+      setLabelInfo(response.data.labelInfo);
   
     }
     const getSentiArticles = async() => {
@@ -69,6 +77,15 @@ function TitleCards(props) {
           </Link>
         ))}
       </div>
+      <div className="btn-popup" onClick={onOpenModal}>
+        <ErrorOutlineRoundedIcon fontSize="large"></ErrorOutlineRoundedIcon>
+      </div>
+      <Modal open={open} onClose={onCloseModal} center>
+        <h2 className="modal-header">標註注意事項</h2>
+        <div className="modal-text">{labelInfo.split("\n").map((i,key) => {
+            return <p key={key}>{i}</p>;
+        })}</div>
+      </Modal>
     </div>
   )
 }
