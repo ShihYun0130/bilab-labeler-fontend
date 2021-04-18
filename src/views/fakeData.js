@@ -164,3 +164,27 @@ export const fakeAspectPool = [
   {id:5, majorAspect:'外觀'},
   
 ]
+
+export const fakeAspectDB = [
+  {
+    taskId:"taskId61660-1",
+    aspectId:"aspectId001",
+    offset:5,
+    majorAspect:"服務",
+    minorAspect:"員工態度"
+  },
+  {
+    taskId:"taskId61660-1",
+    aspectId:"aspectId002",
+    offset:10,
+    majorAspect:"價格",
+    minorAspect:"打折前售價"
+  },
+  {
+    taskId:"taskId61660-1",
+    aspectId:"aspectId003",
+    offset:20,
+    majorAspect:"價格",
+    minorAspect:"促銷"
+  },
+]

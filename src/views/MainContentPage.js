@@ -5,6 +5,7 @@ import TitleCards from './TitleCards'
 import ParagraphCards from './ParagraphCards'
 import MRCLabel from './Labeling'
 import SentimentalLabel from './SentiLabeling'
+// import SentimentalLabel from './SentiValidationPage'
 import MRCValidation from './ValidationPage' // temp
 import React from 'react';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";

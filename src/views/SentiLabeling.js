@@ -239,7 +239,7 @@ function SentiLabeling() {
       setAspectButtonCss({status:0, css:"aspect-label-button"});
       setSentiButtonCss({status:0, css:"sentiment-label-button"});
       setStartId(0);
-      if(isLast == 1){
+      if(isLast === 1){
         history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
       }
     }
@@ -252,7 +252,7 @@ function SentiLabeling() {
       setAspectButtonCss({status:0, css:"aspect-label-button"});
       setSentiButtonCss({status:0, css:"sentiment-label-button"});
       setStartId(0);
-      if(isLast == 1){
+      if(isLast === 1){
         history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
       }
 
@@ -282,7 +282,7 @@ function SentiLabeling() {
   return (
     <div id="SentiLabeling" className="justify-center">
       <div className="senti-working-area-container overflow-scroll">
-        <div className="senti-back-button" onClick={() => history.push(`/Sentimental/Label/${articleTitle}`)}>〈 回上一層 </div>
+        <div className="senti-back-button" onClick={() => history.push(`/Sentimental/Label/${articleId}`)}>〈 回上一層 </div>
         <div className="senti-working-article-title body-padding">{task ? task.taskTitle : ""}</div>
         <div className="senti-working-article-content body-padding" onMouseUp={mouseUpHandler}>{task ? task.context : ""}</div>
         
