@@ -34,7 +34,7 @@ function ProjectManagePage() {
       console.log("projects", res.data)
     };
     getProject()
-  }, [profileObj.googleId])
+  }, [profileObj.googleId, openAdd])
 
   const editProject = (project) => {
     setFocusProject(project);
@@ -81,7 +81,7 @@ function ProjectManagePage() {
         <EditProjectPage project={focusProject}/>
       </Modal>
       <Modal open={openAdd} onClose={onCloseAddModal} center>
-        <AddProjectPage/>
+        <AddProjectPage onCloseCallback={onCloseAddModal}/>
       </Modal>
     </div>
   )

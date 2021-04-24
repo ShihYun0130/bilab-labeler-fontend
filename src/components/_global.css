@@ -84,8 +84,8 @@
 .mb-20 { margin-bottom: 20px; }
 .mb-30 { margin-bottom: 30px; }
 
+.mr-5 { margin-right: 5px; }
 .mr-10 { margin-right: 10px; }
-
 .mr-40 {
   margin-right: 40px;
 }
@@ -94,4 +94,8 @@
 
 .light-green {
   background-color: #1FDCA8;
+}
+
+.text-normal {
+  font-weight:normal;
 }
