@@ -79,6 +79,8 @@ function EditProjectPage(props) {
     const saveProject = () => {
         saveAuth();
         getProjectUsers(focusProject);
+        //close Modal
+        props.onCloseCallback();
     }
 
     return(

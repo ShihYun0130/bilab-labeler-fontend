@@ -11,8 +11,8 @@ function ParagraphCards(props) {
   let history = useHistory();
   let { url } = useRouteMatch();
   let { articleId } = useParams();
-  const [articleTitle, setArticleTitle] = useState();
-  const [paragraphs, setParagraphs] = useState();
+  const [articleTitle, setArticleTitle] = useState("");
+  const [paragraphs, setParagraphs] = useState([]);
   let isLabeled = true;
   const profileObj = useSelector(state => state.profileObj);
 
@@ -25,7 +25,6 @@ function ParagraphCards(props) {
         "articleId": articleId
       }
       const response = await axios.post(actionURL, arg)
-      // console.log('res', response)
       setParagraphs(response.data.taskList);
       setArticleTitle(response.data.articleTitle);
       // setqaList(response.data.qaList)
@@ -85,7 +84,7 @@ function ParagraphCards(props) {
     <div id="Paragraphs" className="center-center">
       <div className="paragraph-title-container justify-start f-20">
         <div className="line" />
-        <div className="center-center mb-3">{articleTitle}</div>
+        <div className="center-center mb-3">{articleTitle.slice(0,30) + "..."}</div>
       </div>
       <div className="start-start flex-wrap">
         {paragraphs.map((paragraph, idx) => (
@@ -96,7 +95,7 @@ function ParagraphCards(props) {
             }>
               <div className="paragraph-counter center-center mb-20">{paragraph.answered}</div>
               <div>
-                {paragraph.taskTitle}
+                {paragraph.context.slice(0,50) + "..."}
               </div>
             </div>
           </div>

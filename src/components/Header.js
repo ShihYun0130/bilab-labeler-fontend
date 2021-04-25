@@ -8,7 +8,7 @@ import {
   useRouteMatch
 } from "react-router-dom";
 
-function Header() {
+function Header(props) {
   let { url } = useRouteMatch();
   return (
     <div id="Header" className="justify-around">
@@ -17,8 +17,13 @@ function Header() {
         <EntryMenu />
       </div>
       <div className="justify-end header-router-container">
-        <Link to={`${url}/Label`}><div className="header-router-button">標記</div></Link>
-        <Link to={`${url}/Validation`}><div className="header-router-button">驗證</div></Link>
+        {!props.isManagePage ? 
+          <div className="flex-wrap">
+            <Link to={`${url}/Label`}><div className="header-router-button">標記</div></Link>
+            <Link to={`${url}/Validation`}><div className="header-router-button">驗證</div></Link>
+          </div>:
+          ""
+        }
         <AccountMenu/>
       </div>
     </div>

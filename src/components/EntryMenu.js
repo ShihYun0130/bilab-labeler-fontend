@@ -8,9 +8,11 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { Link, useRouteMatch } from "react-router-dom";
+import { Link } from "react-router-dom";
+import { useSelector} from 'react-redux';
+import axios from 'axios'
 
-import { routes } from '../config';
+import { BASEURL } from '../config';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -33,17 +35,30 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function EntryMenu() {
-  let { url } = useRouteMatch();
-
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   // const [selectedIndex, setSelectedIndex] = useState(0);
   const anchorRef = useRef(null);
-  const [taskTypeTitle, setTaskTypeTitle] = useState(routes.options[0].title)
+  const [taskTypeTitle, setTaskTypeTitle] = useState("")
+
+  // query available tasks
+  const profileObj = useSelector(state => state.profileObj);
+  const [projects, setProjects] = useState();
+
   useEffect(() => {
-    const task = routes.options.filter(option => option.type === url.replace('/', ''))
-    setTaskTypeTitle(task[0].title)
-  }, [url])
+    const getProject = async () => {
+      const arg = {
+        userId: profileObj.googleId,
+        statusCode: "0"
+      }
+      const res = await axios.post(`${BASEURL}/projects`, arg)
+      setProjects(res.data);
+      if(res.data.length) {
+        setTaskTypeTitle(res.data[0].projectName);
+      }
+    };
+    getProject();
+  }, [profileObj.googleId])
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -60,6 +75,7 @@ export default function EntryMenu() {
   const handleMenuItemClick = (event, index) => {
     // setSelectedIndex(index);
     // setAnchorEl(null);
+    setTaskTypeTitle(projects[index].projectName);
     handleClose(event);
   };
 
@@ -101,12 +117,12 @@ export default function EntryMenu() {
               <Paper className={classes.paper}>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                  {routes.options.map((option, index) => (
-                    <Link key={index} className={classes.link} to={`/${option.type}`}> 
+                  {projects.map((project, index) => (
+                    <Link key={index} className={classes.link} to={`/${project.projectType}/Label/${project.projectId}`}> 
                       <MenuItem
                         key={index} 
                         onClick={(event) => handleMenuItemClick(event, index)}>
-                        {option.title}
+                        {project.projectName}
                       </MenuItem>
                     </Link>
                   ))}

@@ -1,6 +1,7 @@
 import './App.css';
 import MainContentPage from './views/MainContentPage'
 import SocialLogin from './components/GoogleLogin';
+import ProjectManage from './views/ProjectManagePage' // temp
 import { useSelector } from 'react-redux';
 import {
   BrowserRouter as Router,
@@ -21,6 +22,7 @@ function App() {
           <Switch>
             <Route path="/MRC" component={MainContentPage} />
             <Route path="/Sentimental" render={() => <MainContentPage type="Sentimental" />} />
+            <Route path={`/ProjectManage`} component={ProjectManage} />
             <Redirect from="/" to="/MRC" />
           </Switch>
         </div> 

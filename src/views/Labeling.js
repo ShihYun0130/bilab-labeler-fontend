@@ -8,7 +8,7 @@ import { useSelector} from 'react-redux';
 function Labeling() {
   let history = useHistory();
   let { params } = useRouteMatch();
-  let { articleId, idx } = params;
+  let { projectId, articleId, idx } = params;
   const [question, setQuestion] = useState("");
   const [answer, setAnswer] = useState("");
   const [startIndex, setStartIndex] = useState(0);
@@ -119,15 +119,15 @@ function Labeling() {
 
   const goToNextTask = () => {
     handleNewQuestion()
-    history.push(`/MRC/Label/${articleId}/${parseInt(idx) + 1}`);
+    history.push(`/MRC/Label/${projectId}/${articleId}/${parseInt(idx) + 1}`);
   }
 
   return (
     <div id="Labeling" className="justify-center">
       <div className="working-area-container overflow-scroll">
-        <div className="back-button" onClick={() => history.push(`/MRC/Label/${articleId}`)}>〈 回上一層 </div>
+        <div className="back-button" onClick={() => history.push(`/MRC/Label/${projectId}/${articleId}`)}>〈 回上一層 </div>
         <div className="working-article-title body-padding">
-          {task ? task.taskTitle : ""}
+          {task ? task.taskTitle.slice(0, 50)+"..." : ""}
         </div>
         <div className="working-article-content body-padding" onMouseUp={mouseUpHandler}>
           {task ? task.context : ""}

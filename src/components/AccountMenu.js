@@ -8,7 +8,7 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
 import { useSelector, useDispatch} from 'react-redux';
-import { useHistory, useRouteMatch } from "react-router-dom";
+import { Link, useHistory, useRouteMatch } from "react-router-dom";
 
 import { accountMenu } from '../config';
 
@@ -120,11 +120,13 @@ export default function AccountMenu() {
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
                   {accountMenu.options.map((option, index) => (
-                      <MenuItem
-                        key={index} 
-                        onClick={(event) => handleMenuItemClick(event, option.type)}>
-                        {option.title}
-                      </MenuItem>
+                      <Link key={index} to={`/${option.type}`}> 
+                        <MenuItem
+                          key={index} 
+                          onClick={(event) => handleMenuItemClick(event, option.type)}>
+                          {option.title}
+                        </MenuItem>
+                      </Link>
                   ))}
                   </MenuList>
                 </ClickAwayListener>
