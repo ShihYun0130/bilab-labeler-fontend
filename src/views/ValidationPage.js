@@ -20,7 +20,6 @@ function ValidationPage() {
     const res = await axios.post(`${BASEURL}/getValidation`, arg);
     console.log("res", res);
     setTaskInfo(res.data);
-    setArticleId(res.data.articleId);
   };
 
   useEffect(() => {
