@@ -15,7 +15,7 @@ function ProjectManagePage() {
   const [projects, setProjects] = useState([]);
   const [focusProject, setFocusProject] = useState();
 
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   /** open edit modal */
   const [open, setOpen] = useState(false);
   /** open add project modal */

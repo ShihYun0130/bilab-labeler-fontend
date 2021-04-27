@@ -11,6 +11,7 @@ import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
 import { Link } from "react-router-dom";
 import { useSelector} from 'react-redux';
 import axios from 'axios'
+import { useDispatch } from 'react-redux';
 
 import { BASEURL } from '../config';
 
@@ -42,8 +43,17 @@ export default function EntryMenu() {
   const [taskTypeTitle, setTaskTypeTitle] = useState("")
 
   // query available tasks
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   const [projects, setProjects] = useState();
+
+  // change redux status and write to localStorage
+  const dispatch = useDispatch();
+  const dispatchProject = (item) => {
+      dispatch({
+          type: 'SETPROJECT',
+          payload: {focusProject:item}
+      });
+  };
 
   useEffect(() => {
     const getProject = async () => {
@@ -55,6 +65,7 @@ export default function EntryMenu() {
       setProjects(res.data);
       if(res.data.length) {
         setTaskTypeTitle(res.data[0].projectName);
+        dispatchProject(res.data[0]);
       }
     };
     getProject();
@@ -76,6 +87,7 @@ export default function EntryMenu() {
     // setSelectedIndex(index);
     // setAnchorEl(null);
     setTaskTypeTitle(projects[index].projectName);
+    dispatchProject(projects[index]);
     handleClose(event);
   };
 
@@ -117,7 +129,7 @@ export default function EntryMenu() {
               <Paper className={classes.paper}>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                  {projects.map((project, index) => (
+                  {projects.sort(function (a, b){return a.projectId - b.projectId;}).map((project, index) => (
                     <Link key={index} className={classes.link} to={`/${project.projectType}/Label/${project.projectId}`}> 
                       <MenuItem
                         key={index} 

@@ -12,7 +12,7 @@ import {
 
 function App() {
   // using redux state to watch for changes
-  const accessToken = useSelector(state => state.accessToken);
+  const accessToken = useSelector(state => state.accountReducer.accessToken);
   
   // if already logged in
   if(accessToken){

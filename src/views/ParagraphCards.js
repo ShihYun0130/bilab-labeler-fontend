@@ -14,7 +14,7 @@ function ParagraphCards(props) {
   const [articleTitle, setArticleTitle] = useState("");
   const [paragraphs, setParagraphs] = useState([]);
   let isLabeled = true;
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
 
   useEffect(() => {
     const getSetParagraphs = async () => {
