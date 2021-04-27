@@ -16,7 +16,7 @@ import Dropzone from 'react-dropzone'
 import { useSelector} from 'react-redux'
 
 function AddProjectPage(props) {
-    const profileObj = useSelector(state => state.profileObj);
+    const profileObj = useSelector(state => state.accountReducer.profileObj);
 
     var defaultAddProjectObj = {
         projectName:"康健雜誌 MRC",

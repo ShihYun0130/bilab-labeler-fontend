@@ -18,7 +18,7 @@ function Labeling() {
   const taskInfo = JSON.parse(sessionStorage.getItem('paragraph'));
   const [task, setTask] = useState();
   const [qaPairs, setQaPairs] = useState();
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
 
   useEffect(() => {
     const getTask = async () => {

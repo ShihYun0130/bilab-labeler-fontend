@@ -6,7 +6,6 @@ import ParagraphCards from './ParagraphCards'
 import MRCLabel from './Labeling'
 import SentimentalLabel from './SentiLabeling'
 import MRCValidation from './ValidationPage' // temp
-import ProjectManage from './ProjectManagePage' // temp
 import React from 'react';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import {
@@ -15,9 +14,11 @@ import {
   useRouteMatch,
   Redirect
 } from "react-router-dom";
+import { useSelector} from 'react-redux'
 
 function MainContent(props) {
   let { path } = useRouteMatch();
+  const focusProject = useSelector(state => state.projectReducer.focusProject);
   console.log('path', path)
 
   return (
@@ -37,8 +38,7 @@ function MainContent(props) {
           <TitleCards type={props.type} />
         </Route>
         <Route path={`${path}/Validation`} component={MRCValidation} />
-        <Route path={`${path}/ProjectManage`} component={ProjectManage} />
-        <Redirect from={path} to={`${path}/Label`} />
+        <Redirect from={path} to={`${path}/Label/${focusProject.projectId}`} />
       </Switch>
     </div>
   )

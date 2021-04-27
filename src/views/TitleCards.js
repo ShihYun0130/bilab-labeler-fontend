@@ -15,7 +15,7 @@ function TitleCards(props) {
   let { path } = useRouteMatch();
   let { projectId } = useParams();
   const [articles, setArticles] = useState();
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   const [labelInfo, setLabelInfo] = useState("");
   const [open, setOpen] = useState(false);
 

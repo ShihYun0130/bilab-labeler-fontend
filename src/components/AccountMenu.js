@@ -87,7 +87,7 @@ export default function AccountMenu() {
     }
   }
 
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = useRef(open);
   useEffect(() => {
