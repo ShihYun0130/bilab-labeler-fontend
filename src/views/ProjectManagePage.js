@@ -57,7 +57,7 @@ function ProjectManagePage() {
             <h2>我管理的專案</h2>
           </div>
           <div className="center-center flex-wrap">
-            {projects.map((project, idx) => (
+            {projects.sort(function (a, b){return a.projectId - b.projectId;}).map((project, idx) => (
               <div key={idx} className="center-center list-item" onClick={() => { editProject(project) }}>
                 <div key={idx}>
                     {project.projectName}

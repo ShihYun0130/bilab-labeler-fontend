@@ -199,7 +199,7 @@ function AddProjectPage(props) {
         </div>
         <div className="align-start body-padding mt-20">
             <div className="nowrap mb-10">專案角色：</div>
-            <div className="start-center">
+            <div className="w-full">
                 <div className="role mt-5">
                     {profileObj.name + '-' + profileObj.email}
                     <span className="ml-40"> 管理者 </span>
@@ -211,13 +211,13 @@ function AddProjectPage(props) {
                         <InputLabel>新增人員</InputLabel>
                         <Select onChange={handleSelectedUserChange(idx)}  value={member.userId ? member.userId: ""} native>
                         {users ? users.map(function(user){
-                            return ( <option key={user.userId} value={user.userId}>{user.name + '-' + user.email}</option> )
+                            return ( <option key={user.userId} value={user.userId}>{user.name + ' - ' + user.email}</option> )
                         }): ""}
                         </Select>
                     </FormControl>
                     <FormControl>
                         <InputLabel>角色</InputLabel>
-                        <Select onChange={handleSelectedStatusCodeAdd(idx)} value={member.statusCode} native>
+                        <Select onChange={handleSelectedStatusCodeAdd(idx)} value={member.statusCode} className="w-70" native>
                             <option value={"1"}>管理者</option>
                             <option value={"2"}>標註員</option>
                         </Select>
