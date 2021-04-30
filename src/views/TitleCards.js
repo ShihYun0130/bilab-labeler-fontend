@@ -40,7 +40,8 @@ function TitleCards(props) {
         "userId": profileObj.googleId,
       }
       const response = await axios.post(actionURL, arg)
-      setArticles(response.data);
+      setArticles(response.data.articleList);
+      setLabelInfo(response.data.labelInfo);
   
     }
     // console.info(props.type)
