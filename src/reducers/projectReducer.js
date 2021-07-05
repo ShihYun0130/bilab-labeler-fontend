@@ -1,5 +1,8 @@
 const initialState = {
     projects: [],
+    focusProject: {
+        projectId: 0
+    }
 }
 
 export default function projectReducer(state = initialState, action){

@@ -52,17 +52,33 @@ function AddProjectPage(props) {
 
     // initialize
     useEffect(() => {
-        const getUsers = async (project) => {
-            let arg = {
-                projectId: 0,
-            }
-            const res = await axios.post(`${BASEURL}/users`, arg);
+        const getUsers = async () => {
+            const res = await axios.get(`${BASEURL}/users`);
             console.log("users", res.data.map(x => x.email));
             setUsers(res.data);
             let tempMembers = members;
             tempMembers[0].userId = res.data[0].userId
             setMembers([...tempMembers])
         };
+
+        // get users in the project and set list.
+        const getProjectUsers = async (projectId) => {
+            let arg = {
+                projectId: String(projectId),
+            }
+            const res = await axios.post(`${BASEURL}/projectUsers`, arg);
+            console.log("projectUser", res.data);
+            setMembers(res.data);
+        };
+
+        if(props.isEdit){
+            // import data from focus project
+            let targetProject = props.project
+            setProjectName(targetProject.projectName)
+            setProjectType(targetProject.projectType)
+            setLabelInfo(targetProject.labelInfo)
+            getProjectUsers(targetProject.projectId)
+        }
         getUsers();
       }, [])
 
@@ -71,6 +87,17 @@ function AddProjectPage(props) {
         setSelectedUserIds(members.map(x => x.userId))
         console.log(selectedUserIds)
     }, [members])
+
+    //check if memebers has at least one projectOwner
+    const checkExistProjectOwner = () => {
+        let isExist = false
+        members.forEach(function(member){
+            if(member.statusCode == "1"){
+                isExist = true
+            }
+        });
+        return isExist
+    }
 
     const saveProject = async() => {
         if(!projectName){
@@ -81,8 +108,12 @@ function AddProjectPage(props) {
             alert("需要填寫專案說明")
             return
         }
-        if(!fileObj.fileName || !csvFile){
+        if(!props.isEdit && (!fileObj.fileName || !csvFile)){
             alert("請確實上傳正確格式的檔案與檔案名稱")
+            return
+        }
+        if(props.isEdit && !checkExistProjectOwner()){
+            alert("請至少選取一位成員作為管理者")
             return
         }
         let arg = {
@@ -198,15 +229,16 @@ function AddProjectPage(props) {
             onChange={handleLabelInfoChange}/>
         </div>
         <div className="align-start body-padding mt-20">
-            <div className="nowrap mb-10">專案角色：</div>
-            <div className="w-full">
-                <div className="role mt-5">
-                    {profileObj.name + '-' + profileObj.email}
-                    <span className="ml-40"> 管理者 </span>
-                </div>
-            </div>
+            <div className="nowrap mb-5">專案角色：</div>
+            {!props.isEdit ? 
+                <div className="w-full">
+                    <div className="role mt-5">
+                        {profileObj.name + '-' + profileObj.email}
+                        <span className="ml-40"> 管理者 </span>
+                    </div>
+                </div> : ""}
             {members ? members.map((member, idx) => (
-                <div className="mt-20 select" key={idx}>
+                <div className="mt-15 select" key={idx}>
                     <FormControl>
                         <InputLabel>新增人員</InputLabel>
                         <Select onChange={handleSelectedUserChange(idx)}  value={member.userId ? member.userId: ""} native>

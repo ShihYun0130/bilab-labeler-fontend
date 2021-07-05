@@ -68,7 +68,8 @@ function ProjectManagePage() {
           </div>
         </div>
         <Modal open={open} onClose={onCloseModal} center>
-          <EditProjectPage project={focusProject} onCloseCallback={onCloseModal}/>
+          {/* <EditProjectPage project={focusProject} onCloseCallback={onCloseModal}/> */}
+          <AddProjectPage project={focusProject} isEdit={true} onCloseCallback={onCloseAddModal}/>
         </Modal>
         <Modal open={openAdd} onClose={onCloseAddModal} center>
           <AddProjectPage onCloseCallback={onCloseAddModal}/>
