@@ -25,7 +25,6 @@ function SentiLabeling() {
   let { params } = useRouteMatch();
   let { articleId, idx } = params;
   let {articleTitle, paragraph} = params;
-  const [isFixedAnswer, setIsFixedAnswer] = useState(true);
 
   const [tempPool, setTempPool] = useState([]);
   const [majorAspectPool, setMajorAspectPool] = useState([]);
