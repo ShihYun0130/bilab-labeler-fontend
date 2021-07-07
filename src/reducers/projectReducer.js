@@ -1,7 +1,7 @@
 const initialState = {
     projects: [],
     focusProject: {
-        projectId: 0
+        projectId: 1
     }
 }
 

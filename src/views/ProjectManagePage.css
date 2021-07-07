@@ -70,17 +70,11 @@
   color: white;
 }
 .role {
-  font-size: 16.5px;
+  font-size: 13.5px;
   display: flex;
   justify-content: space-between;
   font-weight: 500;
-  color:rgb(121, 121, 122)
-}
-.select {
-  font-size: 16.5px;
-  display: flex;
-  justify-content: space-between;
-  font-weight: 500;
+  color:rgb(136, 136, 136)
 }
 .save-btn{
   cursor: pointer;
@@ -88,8 +82,23 @@
   font-weight: bold;
   border-radius: 15px;
   background-color: #4D87EB;
-  width: 50px;
+  width: 80px;
   height: 40px;
+}
+.delete-btn{
+  color: #eb4d4d;
+  /* font-weight: bold; */
+  border-radius: 15px;
+  border: 1px solid #eb4d4d;
+  width: 100px;
+  height: 40px;
+  transition: 0.5s;
+}
+.delete-btn:hover{
+  cursor: pointer;
+  color: #ffffff;
+  font-weight: bold;
+  background-color: #eb4d4d;
 }
 .form-textarea {
   width: 100%;
@@ -125,6 +134,12 @@
 .ml-40 {
   margin-left: 40px;
 }
-.width-all {
+.w-100 {
+  width: 100px;
+}
+.w-150 {
+  width: 150px;
+}
+.w-all {
   width: 100%;
 }
