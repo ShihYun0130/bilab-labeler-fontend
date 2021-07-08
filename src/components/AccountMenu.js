@@ -7,13 +7,10 @@ import Popper from '@material-ui/core/Popper';
 import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { Link } from "react-router-dom";
-import { useSelector} from 'react-redux';
-import axios from 'axios'
-import { useDispatch } from 'react-redux';
+import { useSelector, useDispatch} from 'react-redux';
+import { Link, useHistory, useRouteMatch } from "react-router-dom";
 
-import { BASEURL } from '../config';
+import { accountMenu } from '../config';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -35,42 +32,26 @@ const useStyles = makeStyles(() => ({
   }
 }));
 
-export default function EntryMenu() {
+export default function AccountMenu() {
+  let { url } = useRouteMatch();
+  let history = useHistory();
+
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   // const [selectedIndex, setSelectedIndex] = useState(0);
   const anchorRef = useRef(null);
-  const [taskTypeTitle, setTaskTypeTitle] = useState("")
+  // useEffect(() => {
+  //   const task = accountMenu.options.filter(option => option.type === url.replace('/', ''))
+  // }, [url])
 
-  // query available tasks
-  const profileObj = useSelector(state => state.accountReducer.profileObj);
-  const [projects, setProjects] = useState();
-
-  // change redux status and write to localStorage
+  // dispatch redux logout action
   const dispatch = useDispatch();
-  const dispatchProject = (item) => {
-      dispatch({
-          type: 'SETPROJECT',
-          payload: {focusProject:item}
-      });
-  };
-
-  useEffect(() => {
-    const getProject = async () => {
-      const arg = {
-        userId: profileObj.googleId,
-        statusCode: "0"
-      }
-      const res = await axios.post(`${BASEURL}/projects`, arg)
-      setProjects(res.data);
-      if(res.data.length) {
-        setTaskTypeTitle(res.data[0].projectName);
-        dispatchProject(res.data[0]);
-      }
+  const logout = () => {
+        console.log("clearLoginInfo")
+        dispatch({
+            type: 'LOGOUT'
+        });
     };
-    getProject();
-  }, [profileObj.googleId])
-
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
   };
@@ -83,11 +64,19 @@ export default function EntryMenu() {
     setOpen(false);
   };
 
-  const handleMenuItemClick = (event, index) => {
+  const handleMenuItemClick = (event, optionType) => {
     // setSelectedIndex(index);
     // setAnchorEl(null);
-    setTaskTypeTitle(projects[index].projectName);
-    dispatchProject(projects[index]);
+    switch(optionType) {
+      case "ProjectManage":
+        history.push(optionType)
+        break;
+      case "Logout":
+        logout();
+        break;
+      default:
+        break;
+    }
     handleClose(event);
   };
 
@@ -98,6 +87,7 @@ export default function EntryMenu() {
     }
   }
 
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   // return focus to the button when we transitioned from !open -> open
   const prevOpen = useRef(open);
   useEffect(() => {
@@ -110,7 +100,8 @@ export default function EntryMenu() {
 
   return (
     <div className={classes.root}>
-      <div>
+      <div className="justify-end">
+        <div className="header-router-button w-120"><span className="f-25 mb-5">Hi,</span> {profileObj.givenName}</div>
         <Button
           ref={anchorRef}
           aria-controls={open ? 'menu-list-grow' : undefined}
@@ -118,8 +109,7 @@ export default function EntryMenu() {
           onClick={handleToggle}
           className={classes.button}
         >
-          {taskTypeTitle}
-          <ArrowDropDownIcon />
+          <img className="user-image" src={profileObj.imageUrl} alt=""/>
         </Button>
         <Popper open={open} placement='bottom-start' anchorEl={anchorRef.current} role={undefined} transition disablePortal>
           {({ TransitionProps }) => (
@@ -129,14 +119,14 @@ export default function EntryMenu() {
               <Paper className={classes.paper}>
                 <ClickAwayListener onClickAway={handleClose}>
                   <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                  {projects.sort(function (a, b){return a.projectId - b.projectId;}).map((project, index) => (
-                    <Link key={index} className={classes.link} to={`/${project.projectType}/Label/${project.projectId}`}> 
-                      <MenuItem
-                        key={index} 
-                        onClick={(event) => handleMenuItemClick(event, index)}>
-                        {project.projectName}
-                      </MenuItem>
-                    </Link>
+                  {accountMenu.options.map((option, index) => (
+                      <Link key={index} to={`/${option.type}`}> 
+                        <MenuItem
+                          key={index} 
+                          onClick={(event) => handleMenuItemClick(event, option.type)}>
+                          {option.title}
+                        </MenuItem>
+                      </Link>
                   ))}
                   </MenuList>
                 </ClickAwayListener>

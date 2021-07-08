@@ -1,6 +1,7 @@
 import './App.css';
 import MainContentPage from './views/MainContentPage'
 import SocialLogin from './components/GoogleLogin';
+import ProjectManage from './views/ProjectManagePage' // temp
 import { useSelector } from 'react-redux';
 import {
   BrowserRouter as Router,
@@ -11,7 +12,7 @@ import {
 
 function App() {
   // using redux state to watch for changes
-  const accessToken = useSelector(state => state.accessToken);
+  const accessToken = useSelector(state => state.accountReducer.accessToken);
   
   // if already logged in
   if(accessToken){
@@ -21,6 +22,7 @@ function App() {
           <Switch>
             <Route path="/MRC" component={MainContentPage} />
             <Route path="/Sentimental" render={() => <MainContentPage type="Sentimental" />} />
+            <Route path={`/ProjectManage`} component={ProjectManage} />
             <Redirect from="/" to="/MRC" />
           </Switch>
         </div> 

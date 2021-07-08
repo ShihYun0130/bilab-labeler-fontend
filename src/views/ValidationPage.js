@@ -7,7 +7,7 @@ import axios from 'axios'
 
 function ValidationPage() {
   const [task, setTask] = useState("")
-  const profileObj = useSelector(state => state.profileObj)
+  const profileObj = useSelector(state => state.accountReducer.profileObj)
 
   const getTask = async () => {
     const arg = {
