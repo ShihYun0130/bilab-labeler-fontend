@@ -11,5 +11,5 @@ export const routes = {
   ]
 }
 
-export const BASEURL = "http://140.112.107.121:9090";
-// export const BASEURL = "http://127.0.0.1:9090";
+// export const BASEURL = "http://140.112.107.121:9090";
+export const BASEURL = "http://127.0.0.1:9090";
