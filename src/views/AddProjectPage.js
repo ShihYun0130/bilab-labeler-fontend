@@ -2,11 +2,8 @@ import './ParagraphCards.css'
 import './ProjectManagePage.css'
 import './Labeling.css'
 import 'react-responsive-modal/styles.css';
-import FormControl from '@material-ui/core/FormControl';
-import Select from '@material-ui/core/Select';
-import InputLabel from '@material-ui/core/InputLabel';
+import Select from 'react-select';
 import DescriptionRoundedIcon from '@material-ui/icons/DescriptionRounded';
-import AddCircleRoundedIcon from '@material-ui/icons/AddCircleRounded';
 import CloseRoundedIcon from '@material-ui/icons/CloseRounded';
 import { BASEURL } from "../config"
 import { useState, useEffect } from "react"
@@ -14,65 +11,100 @@ import axios from 'axios'
 import csv from "csv";
 import Dropzone from 'react-dropzone'
 import { useSelector} from 'react-redux'
+import { Modal } from 'react-responsive-modal';
 
 function AddProjectPage(props) {
     const profileObj = useSelector(state => state.accountReducer.profileObj);
 
-    var defaultAddProjectObj = {
+    const defaultAddProjectObj = {
         projectName:"康健雜誌 MRC",
         projectType:"MRC",
         projectId:1, 
         labelInfo:
           `請依循標註注意事項進行標註:\n• 請在標記答案的時候選擇最接近問題的答案(也就是跟問題本身最有關連的答案)\n• 請標記出最短可行的答案作為原則，不須包含任何前綴詞，結尾也不需要包含句號等標點符號\n• 請參考作答區域右方的提問紀錄，盡量不要重覆到他人問過的問題`,
     }
-    var ownerMember = {
-        userId:profileObj.googleId,
-        codeType:'1',
-        statusCode:'1',
-    }
-    var defaultMember = {
-        userId:0,
-        codeType:'1',
-        statusCode:'2',
-    }
 
-    var defaultFileObj = {
+    const defaultFileObj = {
         fileName:"",
         fileSize:0,
     }
 
-    const [users, setUsers] = useState();
+    const typeOptions = [
+        { value: 'MRC', label: 'MRC' },
+        { value: 'Sentiment', label: 'Sentiment' },
+    ];
+    const [users, setUsers] = useState([]);
     const [projectName, setProjectName] = useState("");
-    const [projectType, setProjectType] = useState("MRC");
+    const [projectType, setProjectType] = useState(typeOptions[0]);
     const [labelInfo, setLabelInfo] = useState(defaultAddProjectObj.labelInfo);
-    const [members, setMembers] = useState([defaultMember]);
-    const [selectedUserIds, setSelectedUserIds] = useState([profileObj.userId]);
+    const [admins, setAdmins] = useState([{value: profileObj.googleId, label: profileObj.name + ' - ' + profileObj.email}])
+    const [workers, setWorkers] = useState([]);
     const [fileObj, setFileObj] = useState(defaultFileObj);
     const [csvFile, setCsvFile] = useState([]);
+    const [openDeleteWarn, setOpenDeleteWarn] = useState(false);
 
     // initialize
     useEffect(() => {
-        const getUsers = async (project) => {
-            let arg = {
-                projectId: 0,
-            }
-            const res = await axios.post(`${BASEURL}/users`, arg);
-            console.log("users", res.data.map(x => x.email));
-            setUsers(res.data);
-            let tempMembers = members;
-            tempMembers[0].userId = res.data[0].userId
-            setMembers([...tempMembers])
+        const getUsers = async () => {
+            const res = await axios.get(`${BASEURL}/users`);
+            setUsers(res.data.map(projectUser => {
+                        return {
+                            value: projectUser.userId,
+                            label: projectUser.name + " - " + projectUser.email
+                        }
+                    })
+            )
         };
+
+        // get users in the project and set list.
+        const getProjectUsers = async (projectId) => {
+            let arg = {
+                projectId: String(projectId),
+            }
+            const res = await axios.post(`${BASEURL}/projectUsers`, arg);
+            console.log("projectUser", res.data);
+            if(res.data && res.data.length > 0) {
+                var tempWorkers = []
+                let tempAdmins = []
+                res.data.forEach(projectUser => {
+                    if(projectUser.statusCode == "1"){
+                        tempAdmins.push({value: projectUser.userId, label: projectUser.name + ' - ' + projectUser.email});
+                    }
+                    else{
+                        tempWorkers.push({value: projectUser.userId, label: projectUser.name + ' - ' + projectUser.email});
+                    }
+                })
+                setAdmins([...tempAdmins])
+                setWorkers([...tempWorkers]);
+                // console.log("[debug]: tempAdmins", admins);
+                // console.log("[debug]: tempWorkers", workers);
+            }
+        };
+
+        if(props.isEdit){
+            // import data from focus project
+            let targetProject = props.project
+            setProjectName(targetProject.projectName)
+            setProjectType({label: targetProject.projectType, value: targetProject.projectType})
+            setLabelInfo(targetProject.labelInfo)
+            getProjectUsers(targetProject.projectId)
+        }
         getUsers();
       }, [])
 
-    // computed
-    useEffect(() => {
-        setSelectedUserIds(members.map(x => x.userId))
-        console.log(selectedUserIds)
-    }, [members])
+
+    //check if memebers has at least one projectOwner
+    const checkExistProjectOwner = () => {
+        if (admins.length) {
+            return true
+        }
+        return false
+    }
 
     const saveProject = async() => {
+        console.log("[debug] projectType:", projectType)
+        console.log("[debug] admins:", admins)
+        console.log("[debug] workers:", workers)
         if(!projectName){
             alert("需要填寫專案名稱")
             return
@@ -81,8 +113,12 @@ function AddProjectPage(props) {
             alert("需要填寫專案說明")
             return
         }
-        if(!fileObj.fileName || !csvFile){
+        if(!props.isEdit && (!fileObj.fileName || !csvFile)){
             alert("請確實上傳正確格式的檔案與檔案名稱")
+            return
+        }
+        if(props.isEdit && !checkExistProjectOwner()){
+            alert("請至少選取一位成員作為管理者")
             return
         }
         let arg = {
@@ -92,7 +128,7 @@ function AddProjectPage(props) {
                 projectType,
                 labelInfo
             },
-            members:[...members, ownerMember], // insert both project owner and add members
+            members:[...users], // insert both project owner and add members
             csvFile,
         }
         console.log(arg)
@@ -112,36 +148,10 @@ function AddProjectPage(props) {
         setProjectName(event.target.value);
         return;
     }
-    const handleProjectType = event => {
-        setProjectType(event.target.value);
-        return;
-    }
+
     const handleLabelInfoChange = event => {
         setLabelInfo(event.target.value);
         return;
-    }
-    
-    // add member in add project
-    const addMember = () => {
-        let tempMembers = members;
-        tempMembers.push({
-            userId: members[0]? members[0].userId : "",
-            codeType: '1',
-            statusCode: '2',
-        });
-        setMembers([...tempMembers])
-    }
-    const handleSelectedUserChange = idx => (event) => {
-        let tempMembers = [...members];
-        tempMembers[idx].userId = event.target.value;
-        setMembers([...tempMembers]);
-        console.log(members);
-    }
-    const handleSelectedStatusCodeAdd = idx => (event) => {
-        console.log(event.target.value);
-        let tempMembers = [...members];
-        tempMembers[idx].statusCode = event.target.value;
-        setMembers([...tempMembers]);
     }
 
     //upload excel
@@ -169,7 +179,17 @@ function AddProjectPage(props) {
         setFileObj(defaultFileObj);
         setCsvFile([]);
     }
-    
+
+    const onDeleteProject = () => {
+        onCloseDeleteWarnModal();
+        props.onCloseCallback();
+        return
+    }
+
+    const onOpenDeleteWarnModal = () => {
+        setOpenDeleteWarn(true);
+    }
+    const onCloseDeleteWarnModal = () => setOpenDeleteWarn(false);
 
     return (
     <div className="modal-container">
@@ -182,13 +202,14 @@ function AddProjectPage(props) {
             value={projectName}/>
         </div>
         <div className="align-start body-padding mt-20">
-        <FormControl>
-            <div className="nowrap mb-10">專案類別</div>
-            <Select onChange={handleProjectType} value={projectType} native>
-                <option value={"MRC"}>MRC</option>
-                <option value={"Sentiment"}>Sentiment</option>
-            </Select>
-        </FormControl>
+                <div className="nowrap mb-10">專案類別</div>
+                <div className="w-150">
+                    <Select 
+                        value={projectType}
+                        onChange={setProjectType} 
+                        options={typeOptions}
+                    />
+                </div>
         </div>
         <div className="align-start body-padding mt-20">
         <div className="nowrap mb-10">專案說明與需求：</div>
@@ -199,34 +220,29 @@ function AddProjectPage(props) {
         </div>
         <div className="align-start body-padding mt-20">
             <div className="nowrap mb-10">專案角色：</div>
-            <div className="w-full">
-                <div className="role mt-5">
-                    {profileObj.name + '-' + profileObj.email}
-                    <span className="ml-40"> 管理者 </span>
-                </div>
+            <div className="role mb-5"> 管理者 </div>
+            <div className="w-all mb-10">
+                <Select
+                    value={admins}
+                    isMulti
+                    name="admin"
+                    options={users}
+                    onChange={setAdmins} 
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                />
             </div>
-            {members ? members.map((member, idx) => (
-                <div className="mt-20 select" key={idx}>
-                    <FormControl>
-                        <InputLabel>新增人員</InputLabel>
-                        <Select onChange={handleSelectedUserChange(idx)}  value={member.userId ? member.userId: ""} native>
-                        {users ? users.map(function(user){
-                            return ( <option key={user.userId} value={user.userId}>{user.name + ' - ' + user.email}</option> )
-                        }): ""}
-                        </Select>
-                    </FormControl>
-                    <FormControl>
-                        <InputLabel>角色</InputLabel>
-                        <Select onChange={handleSelectedStatusCodeAdd(idx)} value={member.statusCode} className="w-70" native>
-                            <option value={"1"}>管理者</option>
-                            <option value={"2"}>標註員</option>
-                        </Select>
-                    </FormControl>
-                </div>
-                )) : ""}
-            <div className="add-btn" onClick={addMember}>
-                新增人員
-                <div className="flex-wrap ml-10"><AddCircleRoundedIcon fontSize="small"/></div>
+            <div className="role mb-5"> 標註者 </div>
+            <div className="w-all">
+                <Select
+                    value={workers}
+                    isMulti
+                    name="worker"
+                    options={users}
+                    onChange={setWorkers}
+                    className="basic-multi-select"
+                    classNamePrefix="select"
+                />
             </div>
         </div>
         <div className="align-start body-padding mt-20">
@@ -239,7 +255,7 @@ function AddProjectPage(props) {
                 </div>:
                 <Dropzone onDrop={onDrop}>
                     {({getRootProps, getInputProps}) => (
-                        <section className="width-all">
+                        <section className="w-all">
                             <div {...getRootProps()} className="dropZone center-center">
                                 <input {...getInputProps()} accept=".csv"/>
                                 <p>拖曳或點擊檔案以上傳</p>
@@ -248,13 +264,30 @@ function AddProjectPage(props) {
                     )}
                 </Dropzone>    
             }
-
         </div>
         <div className="justify-end mt-20">
-            <div className="save-btn center-center" onClick={saveProject}>
+            {props.isEdit ? 
+                <div className="delete-btn center-center" onClick={onOpenDeleteWarnModal}>
+                    刪除專案
+                </div>: ""}
+            <div className="save-btn center-center ml-20" onClick={saveProject}>
                 儲存
             </div>
         </div>
+        <Modal open={openDeleteWarn} onClose={onCloseDeleteWarnModal} center>
+            <div className="modal-container">
+                <h2 className="modal-header">確定要刪除專案嗎？</h2>
+                <p className="body-padding">刪除專案將會連同曾經上傳的紀錄與標註內容一併刪除</p>
+                <div className="justify-around">
+                    <div className="save-btn center-center ml-20" onClick={onCloseDeleteWarnModal}>
+                        取消
+                    </div>
+                    <div className="delete-btn center-center ml-20" onClick={onDeleteProject}>
+                        確認刪除專案
+                    </div>
+                </div>
+            </div>
+        </Modal>
     </div>
     )
 }
