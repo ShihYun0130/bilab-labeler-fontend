@@ -20,10 +20,13 @@ const useStyles = makeStyles((theme) => ({
     },
   }));
 
+
+
 function SentiValid() {
   let history = useHistory();
   let { params } = useRouteMatch();
   let { articleId, idx } = params;
+  const focusProject = useSelector(state => state.projectReducer.focusProject);
 
 
   const [aspectList, setAspectList] = useState([]);
@@ -36,7 +39,7 @@ function SentiValid() {
   const [sentiButtonCss, setSentiButtonCss] = useState({status:0, css:"sentiment-label-button"});
   const [startId, setStartId] = useState(0);
 
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   const [task, setTask] = useState();
   const maxParagraph = 10;
 
@@ -93,8 +96,34 @@ function SentiValid() {
     }
     getSentiTask();
     getSentiAspectByTask();
+    // console.log(focusProject);
     
   }, [articleId, idx, profileObj.googleId, aspectList])
+  
+  const sendValidation = async () => {
+    // let newAspectList = []
+    let newSentiList = []
+    let idNo = articleId.replace("articleId", "")
+    let taskId = "taskId"+idNo+"-"+idx
+    sentimentDict.map((oneAspect, idx) => {
+      oneAspect.sentimentList.map((oneSenti, idx) =>{
+        newSentiList = [...newSentiList,{
+          taskId: taskId.toString(), 
+          aspectId: oneAspect.aspectId.toString(), 
+          offset: oneSenti.offset,
+          sentiment: oneSenti.text,
+          dir: oneSenti.dir
+        }]
+      })
+    })
+    // console.info(newAspectList);
+    // console.info(newSentiList);
+    
+    let newAnswer = {task:task, aspect:aspectList, sentiment:newSentiList, projectId:focusProject.projectId.toString()}
+    // console.log(newAnswer);
+    const res = await axios.post(`${BASEURL}/postSentiValidation`, newAnswer)
+    console.log('sentiLabeling: postSentiValidation api', res)
+  }
 
   const changeDir = (offset) => {
     const newList = sentimentList.map((sentiment_item, idx) => {
@@ -214,6 +243,7 @@ function SentiValid() {
   };
   const resetAnswer = (isLast) => {
     if(sentimentList.length !== 0){  
+      sendValidation();
       if(isLast === 1){
         // saveAnswer();
         setSentimentList([]);
@@ -277,6 +307,7 @@ function SentiValid() {
         {/* 底部按鈕 */}
         <div className="justify-center">
           <div className="function-button-senti mr-40" onClick={saveOneSet}>提交該筆驗證</div>
+          <div className="report-button-senti" onClick={() => resetAnswer(0)}>回報 Aspect 標記有誤</div>
         </div>
       </div>
 

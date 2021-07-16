@@ -21,7 +21,7 @@ function App() {
         <div className="App">
           <Switch>
             <Route path="/MRC" component={MainContentPage} />
-            <Route path="/Sentimental" render={() => <MainContentPage type="Sentimental" />} />
+            <Route path="/sentiment" render={() => <MainContentPage type="Sentiment" />} />
             <Route path={`/ProjectManage`} component={ProjectManage} />
             <Redirect from="/" to="/MRC" />
           </Switch>

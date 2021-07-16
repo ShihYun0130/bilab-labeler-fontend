@@ -25,6 +25,7 @@ function SentiLabeling() {
   let { params } = useRouteMatch();
   let { articleId, idx } = params;
   let {articleTitle, paragraph} = params;
+  const focusProject = useSelector(state => state.projectReducer.focusProject);
 
   const [tempPool, setTempPool] = useState([]);
   const [majorAspectPool, setMajorAspectPool] = useState([]);
@@ -37,7 +38,7 @@ function SentiLabeling() {
   const [sentiButtonCss, setSentiButtonCss] = useState({status:0, css:"sentiment-label-button"});
   const [startId, setStartId] = useState(0);
 
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   const [task, setTask] = useState();
   const maxParagraph = 10;
 
