@@ -25,6 +25,7 @@ function SentiLabeling() {
   let { params } = useRouteMatch();
   let { articleId, idx } = params;
   let {articleTitle, paragraph} = params;
+  const focusProject = useSelector(state => state.projectReducer.focusProject);
 
   const [tempPool, setTempPool] = useState([]);
   const [majorAspectPool, setMajorAspectPool] = useState([]);
@@ -37,7 +38,7 @@ function SentiLabeling() {
   const [sentiButtonCss, setSentiButtonCss] = useState({status:0, css:"sentiment-label-button"});
   const [startId, setStartId] = useState(0);
 
-  const profileObj = useSelector(state => state.profileObj);
+  const profileObj = useSelector(state => state.accountReducer.profileObj);
   const [task, setTask] = useState();
   const maxParagraph = 10;
 
@@ -91,6 +92,8 @@ function SentiLabeling() {
     // console.info(newSentiList);
     let newAnswer = {aspect:newAspectList, sentiment:newSentiList}
     const res = await axios.post(`${BASEURL}/saveSentiAnswer`, newAnswer)
+    let newAnswer2 = {userId:profileObj.googleId, taskType:"sentiment", articleId:articleId}
+    const res2 = await axios.post(`${BASEURL}/checkIsAnswered`, newAnswer2)
     console.log('sentiLabeling: saveAnswer api', res)
   }
   

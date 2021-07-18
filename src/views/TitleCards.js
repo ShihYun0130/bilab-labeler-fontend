@@ -38,6 +38,7 @@ function TitleCards(props) {
       let actionURL = BASEURL + '/sentiArticles'
       let arg = {
         "userId": profileObj.googleId,
+        "projectId": projectId
       }
       const response = await axios.post(actionURL, arg)
       setArticles(response.data.articleList);
@@ -48,8 +49,10 @@ function TitleCards(props) {
     if (!props.type || props.type === "MRC") {
       getArticles();
     } 
-    else if (props.type === "Sentimental") {
+    else if (props.type === "Sentiment") {
+      console.log('hehe');
       getSentiArticles();  
+      
     } 
     else {
       setArticles(fakeSentimentalTitles)

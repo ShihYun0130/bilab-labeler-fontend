@@ -4,8 +4,8 @@ import Header from '../components/Header'
 import TitleCards from './TitleCards'
 import ParagraphCards from './ParagraphCards'
 import MRCLabel from './Labeling'
-// import SentimentalLabel from './SentiLabeling'
-import SentimentalLabel from './SentiValidationPage'
+import SentimentalLabel from './SentiLabeling'
+import SentimentalValidation from './SentiValidationPage'
 import MRCValidation from './ValidationPage' // temp
 import React from 'react';
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
@@ -38,7 +38,12 @@ function MainContent(props) {
         <Route path={`${path}/Label/:projectId`}>
           <TitleCards type={props.type} />
         </Route>
-        <Route path={`${path}/Validation`} component={MRCValidation} />
+        <Route path={`${path}/Validation`}>
+          { path === '/MRC' 
+            ? <MRCValidation />
+            : <SentimentalValidation/>
+          }
+        </Route> 
         <Redirect from={path} to={`${path}/Label/${focusProject.projectId}`} />
       </Switch>
     </div>
