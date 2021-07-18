@@ -92,6 +92,8 @@ function SentiLabeling() {
     // console.info(newSentiList);
     let newAnswer = {aspect:newAspectList, sentiment:newSentiList}
     const res = await axios.post(`${BASEURL}/saveSentiAnswer`, newAnswer)
+    let newAnswer2 = {userId:profileObj.googleId, taskType:"sentiment", articleId:articleId}
+    const res2 = await axios.post(`${BASEURL}/checkIsAnswered`, newAnswer2)
     console.log('sentiLabeling: saveAnswer api', res)
   }
   

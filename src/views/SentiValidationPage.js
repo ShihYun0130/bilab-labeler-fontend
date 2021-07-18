@@ -1,4 +1,4 @@
-import { Link, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
 import './SentiLabeling.css'
 import { fakeAspectDB } from './fakeData'
 import {useEffect, useState} from 'react';
@@ -27,7 +27,7 @@ function SentiValid() {
   let { params } = useRouteMatch();
   let { articleId, idx } = params;
   const focusProject = useSelector(state => state.projectReducer.focusProject);
-
+  let { projectId } = useParams();
 
   const [aspectList, setAspectList] = useState([]);
   const [chosenAspect, setChosenAspect] = useState("");
@@ -40,7 +40,7 @@ function SentiValid() {
   const [startId, setStartId] = useState(0);
 
   const profileObj = useSelector(state => state.accountReducer.profileObj);
-  const [task, setTask] = useState();
+  const [task, setTask] = useState({taskId:"0", taskType:"0"});
   const maxParagraph = 10;
 
   const classes = useStyles();
@@ -48,25 +48,21 @@ function SentiValid() {
 
   useEffect(() => {
     const getSentiTask = async () => {
-      let idNo = articleId.replace("articleId", "")
-      let taskId = "taskId"+idNo+"-"+idx
       const arg = {
-        articleId: articleId,
-        taskId: taskId,
         taskType: "sentiment",
-        userId: profileObj.googleId
+        projectId:focusProject.projectId
       }
       // console.log("getSentiTask arg", arg)
-      const res = await axios.post(`${BASEURL}/getSentiTask`, arg);
+      const res = await axios.post(`${BASEURL}/getSentiValidation`, arg);
       // console.log('labeling: getSentiTask api', res);
       setTask(res.data);
+      // console.log('now task is: ', res.data);
     }
     const getSentiAspectByTask = async () => {
-      let idNo = articleId.replace("articleId", "")
-      let taskId = "taskId"+idNo+"-"+idx
+      // let idNo = articleId.replace("articleId", "")
+      // let taskId = "taskId"+idNo+"-"+idx
       const arg = {
-        articleId: articleId,
-        taskId: taskId,
+        taskId: task.taskId,
         taskType: "sentiment",
         userId: profileObj.googleId
       }
@@ -103,12 +99,12 @@ function SentiValid() {
   const sendValidation = async () => {
     // let newAspectList = []
     let newSentiList = []
-    let idNo = articleId.replace("articleId", "")
-    let taskId = "taskId"+idNo+"-"+idx
+    // let idNo = articleId.replace("articleId", "")
+    // let taskId = "taskId"+idNo+"-"+idx
     sentimentDict.map((oneAspect, idx) => {
       oneAspect.sentimentList.map((oneSenti, idx) =>{
         newSentiList = [...newSentiList,{
-          taskId: taskId.toString(), 
+          taskId: task.taskId,
           aspectId: oneAspect.aspectId.toString(), 
           offset: oneSenti.offset,
           sentiment: oneSenti.text,
@@ -124,7 +120,12 @@ function SentiValid() {
     const res = await axios.post(`${BASEURL}/postSentiValidation`, newAnswer)
     console.log('sentiLabeling: postSentiValidation api', res)
   }
-
+  const discardAnswer = async () => {
+    let query = {taskId:task.taskId}
+    console.log('senti valid: discard api', query)
+    const res = await axios.post(`${BASEURL}/discardSentiAnswer`, query)
+    console.log('senti valid: discard api', res)
+  }
   const changeDir = (offset) => {
     const newList = sentimentList.map((sentiment_item, idx) => {
       if (sentiment_item.offset === offset) {
@@ -243,31 +244,45 @@ function SentiValid() {
   };
   const resetAnswer = (isLast) => {
     if(sentimentList.length !== 0){  
-      sendValidation();
+      
       if(isLast === 1){
         // saveAnswer();
+        sendValidation();
         setSentimentList([]);
         setSentimentDict([])
         setSentiButtonCss({status:0, css:"sentiment-label-button"});
         setStartId(0);
-        history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
+        history.push(`/sentiment/Validation}`);
       }
       else{
         // saveAnswer();
+        discardAnswer();
         setSentimentList([]);
         setSentimentDict([])
         setSentiButtonCss({status:0, css:"sentiment-label-button"});
         setStartId(0);
-        history.push(`/Sentimental/Label/${articleId}`);
+        history.push(`/sentiment/Validation}`);
       }
     }
     else{
-      alert('提醒：您並未標注任何情感字詞喔！')
-      setSentiButtonCss({status:0, css:"sentiment-label-button"});
-      setStartId(0);
-      // if(isLast === 1){
-      //   history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
-      // }
+      if(isLast === 1){
+        alert('提醒：您並未標注任何情感字詞喔！')
+        setSentiButtonCss({status:0, css:"sentiment-label-button"});
+        setStartId(0);
+        // if(isLast === 1){
+        //   history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
+        // }
+      }
+      else{
+        // saveAnswer();
+        discardAnswer();
+        setSentimentList([]);
+        setSentimentDict([])
+        setSentiButtonCss({status:0, css:"sentiment-label-button"});
+        setStartId(0);
+        history.push(`/Sentimental/sentiment/Validation}`);
+      }
+
 
     }
     
@@ -331,12 +346,13 @@ function SentiValid() {
           ))}
         </div>
         
-        {(idx < taskInfo.totalTaskNum-1) &&
+        <div onClick = {() => resetAnswer(1)} className="finish-button">標註完成，前往下一段</div>
+        {/* {(idx < taskInfo.totalTaskNum-1) &&
           <div onClick = {() => resetAnswer(1)} className="finish-button">標註完成，前往下一段</div>
         }
         {(idx == taskInfo.totalTaskNum-1) &&
           <div onClick = {() => resetAnswer(0)} className="finish-button">標註完成</div>
-        }
+        } */}
         {/* {(paragraph <= maxParagraph) ? 
             (<Link to={`/Sentimental/Label/${articleTitle}/${parseInt(paragraph)+1}`}>
               <div onClick = {() => resetAnswer()} className="finish-button">標註完成，前往下一段</div>
