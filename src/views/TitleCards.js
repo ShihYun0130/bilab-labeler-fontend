@@ -50,7 +50,7 @@ function TitleCards(props) {
       getArticles();
     } 
     else if (props.type === "Sentiment") {
-      console.log('hehe');
+      // console.log('hehe');
       getSentiArticles();  
       
     } 

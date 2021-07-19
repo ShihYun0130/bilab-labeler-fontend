@@ -23,7 +23,7 @@ const useStyles = makeStyles((theme) => ({
 function SentiLabeling() {
   let history = useHistory();
   let { params } = useRouteMatch();
-  let { articleId, idx } = params;
+  let { projectId, articleId, idx } = params;
   let {articleTitle, paragraph} = params;
   const focusProject = useSelector(state => state.projectReducer.focusProject);
 
@@ -47,6 +47,7 @@ function SentiLabeling() {
 
   useEffect(() => {
     const getSentiTask = async () => {
+      
       let idNo = articleId.replace("articleId", "")
       let taskId = "taskId"+idNo+"-"+idx
       const arg = {
@@ -242,7 +243,7 @@ function SentiLabeling() {
       setSentiButtonCss({status:0, css:"sentiment-label-button"});
       setStartId(0);
       if(isLast === 1){
-        history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
+        history.push(`/sentiment/Label/${projectId}/${articleId}/${parseInt(idx) + 1}`);
       }
     }
     else{
@@ -255,7 +256,7 @@ function SentiLabeling() {
       setSentiButtonCss({status:0, css:"sentiment-label-button"});
       setStartId(0);
       if(isLast === 1){
-        history.push(`/Sentimental/Label/${articleId}/${parseInt(idx) + 1}`);
+        history.push(`/sentiment/Label/${projectId}/${articleId}/${parseInt(idx) + 1}`);
       }
 
     }
@@ -284,7 +285,7 @@ function SentiLabeling() {
   return (
     <div id="SentiLabeling" className="justify-center">
       <div className="senti-working-area-container overflow-scroll">
-        <div className="senti-back-button" onClick={() => history.push(`/Sentimental/Label/${articleId}`)}>〈 回上一層 </div>
+        <div className="senti-back-button" onClick={() => history.push(`/sentiment/Label/${projectId}/${articleId}`)}>〈 回上一層 </div>
         <div className="senti-working-article-title body-padding">{task ? task.taskTitle : ""}</div>
         <div className="senti-working-article-content body-padding" onMouseUp={mouseUpHandler}>{task ? task.context : ""}</div>
         

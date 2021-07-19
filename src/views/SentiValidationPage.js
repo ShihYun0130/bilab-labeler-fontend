@@ -280,7 +280,7 @@ function SentiValid() {
         setSentimentDict([])
         setSentiButtonCss({status:0, css:"sentiment-label-button"});
         setStartId(0);
-        history.push(`/Sentimental/sentiment/Validation}`);
+        history.push(`/sentiment/Validation}`);
       }
 
 
