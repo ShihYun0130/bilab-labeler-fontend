@@ -7,6 +7,7 @@ import { BASEURL } from "../config";
 import { makeStyles } from '@material-ui/core/styles';
 import Chip from '@material-ui/core/Chip';
 import { useSelector} from 'react-redux';
+import { CropLandscapeOutlined } from "@material-ui/icons";
 
 
 const useStyles = makeStyles((theme) => ({
@@ -32,7 +33,7 @@ function SentiValid() {
   const [aspectList, setAspectList] = useState([]);
   const [chosenAspect, setChosenAspect] = useState("");
   const [sentimentDict, setSentimentDict] = useState([]);
-
+  const [isTaskSet, setIsTaskSet] = useState(false);
   const [sentimentList, setSentimentList] = useState([]);
   // const [totalAnswer, setTotalAnswer] = useState([]);
 
@@ -56,8 +57,18 @@ function SentiValid() {
       const res = await axios.post(`${BASEURL}/getSentiValidation`, arg);
       // console.log('labeling: getSentiTask api', res);
       setTask(res.data);
+      setIsTaskSet(true);
       // console.log('now task is: ', res.data);
     }
+    
+    getSentiTask();
+    
+    
+    // console.log(focusProject);
+    
+  }, [articleId, idx, profileObj.googleId])
+
+  useEffect(() => {
     const getSentiAspectByTask = async () => {
       // let idNo = articleId.replace("articleId", "")
       // let taskId = "taskId"+idNo+"-"+idx
@@ -66,12 +77,17 @@ function SentiValid() {
         taskType: "sentiment",
         userId: profileObj.googleId
       }
-      // console.log("getSentiTask arg", arg)
-      // const res = await axios.post(`${BASEURL}/getSentiTask`, arg);
-      const res = fakeAspectDB
+
+      console.log("getSentiTask arg", arg)
+      
+      const res = await axios.post(`${BASEURL}/getSentiAspects`, arg);
+
+      console.log(res)
+      // const res = fakeAspectDB
       // console.log('labeling: getSentiAspect api', res);
       // setTask(res.data);
-      setAspectList(res);
+      setAspectList(res.data);
+      
       let tempDict = []
       if(sentimentDict.length === 0){
 
@@ -90,11 +106,14 @@ function SentiValid() {
       }
       
     }
-    getSentiTask();
-    getSentiAspectByTask();
-    // console.log(focusProject);
-    
-  }, [articleId, idx, profileObj.googleId, aspectList])
+    // if(task.taskId !== "0" && task.taskId){
+    console.log(isTaskSet)
+    if(isTaskSet === true && task.taskId !== "0" && task.taskId){
+      getSentiAspectByTask();
+      setIsTaskSet(false);
+    }
+  },[articleId, idx, profileObj.googleId, aspectList,isTaskSet])
+
   
   const sendValidation = async () => {
     // let newAspectList = []
