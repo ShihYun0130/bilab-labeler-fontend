@@ -1,9 +1,11 @@
 import { useRouteMatch, useHistory } from "react-router-dom";
 import './Labeling.css'
 import { useEffect, useState } from 'react';
+import React from 'react';
 import { BASEURL } from "../config";
 import axios from 'axios';
 import { useSelector} from 'react-redux';
+import Tooltip from '@material-ui/core/Tooltip';
 
 function Labeling() {
   let history = useHistory();
@@ -19,6 +21,44 @@ function Labeling() {
   const [task, setTask] = useState();
   const [qaPairs, setQaPairs] = useState();
   const profileObj = useSelector(state => state.accountReducer.profileObj);
+
+// [Todos] use api to get matched_substring
+var matched_substring = [{ offset: 0, length: 10 }, { offset: 20, length: 5 }]
+/*======== hightlight functions =============*/
+const highlightText = (text, matched_substring, start, end) => {
+  const highlightTextStart = matched_substring.offset;
+  const highlightTextEnd = highlightTextStart + matched_substring.length;
+
+  // The part before matched text
+  const beforeText = text.slice(start, highlightTextStart);
+
+  // Matched text
+  const highlightedText = text.slice(highlightTextStart, highlightTextEnd);
+
+  // Part after matched text
+  // Till the end of text, or till next matched text
+  const afterText = text.slice(highlightTextEnd, end || text.length);
+
+  // Return in array of JSX elements
+  return [beforeText, <Tooltip title="這是你之前已標註過的文字"><span className="underline">{highlightedText}</span></Tooltip>, afterText];
+};
+
+const highlight = (text, matched_substrings) => {
+  const returnText = [];
+
+  // Just iterate through all matches
+  for (let i = 0; i < matched_substrings.length; i++) {
+      const startOfNext = matched_substrings[i + 1]?.offset;
+      if (i === 0) { // If its first match, we start from first character => start at index 0
+          returnText.push(highlightText(text, matched_substrings[i], 0, startOfNext))
+      } else { // If its not first match, we start from match.offset 
+          returnText.push(highlightText(text, matched_substrings[i], matched_substrings[i].offset, startOfNext))
+      }
+  }
+
+  return returnText.map((text, i) => <React.Fragment key={i}>{text}</React.Fragment>)
+};
+/*======== hightlight functions =============*/
 
   useEffect(() => {
     const getTask = async () => {
@@ -130,7 +170,7 @@ function Labeling() {
           {task ? task.taskTitle.slice(0, 50)+"..." : ""}
         </div>
         <div className="working-article-content body-padding" onMouseUp={mouseUpHandler}>
-          {task ? task.context : ""}
+          {task ? highlight(task.context, matched_substring): ""}
         </div>
         <div className="justify-start mb-30 body-padding">
           <div className="nowrap mr-10">問題：</div>
