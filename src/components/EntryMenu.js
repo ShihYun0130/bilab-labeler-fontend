@@ -36,9 +36,9 @@ const useStyles = makeStyles(() => ({
 }));
 
 export default function EntryMenu() {
+  const focusProject = useSelector(state => state.projectReducer.focusProject);
   const classes = useStyles();
   const [open, setOpen] = useState(false);
-  // const [selectedIndex, setSelectedIndex] = useState(0);
   const anchorRef = useRef(null);
   const [taskTypeTitle, setTaskTypeTitle] = useState("")
 
@@ -64,8 +64,7 @@ export default function EntryMenu() {
       const res = await axios.post(`${BASEURL}/projects`, arg)
       setProjects(res.data);
       if(res.data.length) {
-        setTaskTypeTitle(res.data[0].projectName);
-        dispatchProject(res.data[0]);
+        setTaskTypeTitle(focusProject.projectName);
       }
     };
     getProject();
