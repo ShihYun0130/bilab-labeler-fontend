@@ -1,11 +1,11 @@
-import './ParagraphCards.css'
+import "./ParagraphCards.css";
 import { useParams, useRouteMatch, useHistory } from "react-router-dom";
-import { useEffect, useState } from 'react';
-import { BASEURL } from "../config";
+import { useEffect, useState } from "react";
+import { MRC_BASEURL, BASEURL } from "../config";
 import axios from "axios";
 import "react-loader-spinner/dist/loader/css/react-spinner-loader.css";
 import Loader from "react-loader-spinner";
-import { useSelector} from 'react-redux';
+import { useSelector } from "react-redux";
 
 function ParagraphCards(props) {
   let history = useHistory();
@@ -14,44 +14,42 @@ function ParagraphCards(props) {
   const [articleTitle, setArticleTitle] = useState("");
   const [paragraphs, setParagraphs] = useState([]);
   let isLabeled = true;
-  const profileObj = useSelector(state => state.accountReducer.profileObj);
+  const profileObj = useSelector((state) => state.accountReducer.profileObj);
 
   useEffect(() => {
     const getSetParagraphs = async () => {
-      let actionURL = BASEURL + '/tasks'
-      let arg = {
-        "userId": profileObj.googleId,
-        "taskType": "MRC",
-        "articleId": articleId
-      }
-      const response = await axios.post(actionURL, arg)
-      setParagraphs(response.data.taskList);
-      setArticleTitle(response.data.articleTitle);
+      let actionURL = MRC_BASEURL + "/tasks";
+      const response = await axios.get(actionURL, {
+        params: {
+          articleId: articleId,
+        },
+      });
+      console.log("res", response);
+      setParagraphs(response.data);
+      setArticleTitle(response.data[0].articleId.title);
       // setqaList(response.data.qaList)
-    }
+    };
     const getSetSentiParagraphs = async () => {
-      let actionURL = BASEURL + '/sentiTasks'
+      let actionURL = BASEURL + "/sentiTasks";
       let arg = {
-        "userId": profileObj.googleId,
-        "taskType": "sentiment",
-        "articleId": articleId
-      }
-      const response = await axios.post(actionURL, arg)
+        userId: profileObj.googleId,
+        taskType: "sentiment",
+        articleId: articleId,
+      };
+      const response = await axios.post(actionURL, arg);
       // console.log('res', response)
       setParagraphs(response.data.taskList);
       setArticleTitle(response.data.articleTitle);
       // setqaList(response.data.qaList)
-    }
+    };
     // getSetParagraphs();
     // console.info(url)
     if (!props.type || props.type === "MRC") {
       getSetParagraphs();
-    } 
-    else if (props.type === "Sentimental") {
-      getSetSentiParagraphs(); 
-    } 
-    
-  }, [articleId, profileObj.googleId])
+    } else if (props.type === "Sentimental") {
+      getSetSentiParagraphs();
+    }
+  }, [articleId, profileObj.googleId]);
 
   // When api not get responding
   if (!paragraphs || !paragraphs.length) {
@@ -68,43 +66,58 @@ function ParagraphCards(props) {
   }
 
   const goToLabel = (taskId) => {
-    let idx = taskId.split('-')[1]
-    history.push(`${url}/${idx}`);
-    const data = {
-      articleId: articleId,
-      articleTitle: articleTitle,
-      taskId: taskId,
-      totalTaskNum: paragraphs.length,
-      // paragraph: paragraphs[idx]
-    }
-    sessionStorage.setItem("paragraph", JSON.stringify(data));
-  }
+    console.log("taskkid", taskId);
+    // let idx = taskId.split("-")[1];
+    // const data = {
+    //   articleId: articleId,
+    //   articleTitle: articleTitle,
+    //   taskId: taskId,
+    //   totalTaskNum: paragraphs.length,
+    //   paragraph: paragraphs[idx]
+    // };
+    // sessionStorage.setItem("paragraph", JSON.stringify(data));
+    history.push(`${url}/${taskId}`);
+  };
 
   return (
     <div id="Paragraphs" className="center-center">
       <div className="paragraph-title-container justify-start f-20">
         <div className="line" />
-        <div className="center-center mb-3">{articleTitle.slice(0,30) + "..."}</div>
+        <div className="center-center mb-3">
+          {articleTitle.slice(0, 30) + "..."}
+        </div>
       </div>
       <div className="start-start flex-wrap">
         {paragraphs.map((paragraph, idx) => (
-          <div key={idx} className="paragraph-link" onClick={() => { goToLabel(paragraph.taskId) }}>
-            <div key={idx} className={
-              `paragraph-card-container center-center f-16 
-                ${paragraph.isAnswered ? "paragraph-is-labeled" : ""}`
-            }>
-              <div className="paragraph-counter center-center mb-20">{paragraph.answered}</div>
+          <div
+            key={idx}
+            className="paragraph-link"
+            onClick={() => {
+              goToLabel(
+                props.type === "Sentiment" ? paragraph._id : paragraph._id
+              );
+            }}
+          >
+            <div
+              key={idx}
+              className={`paragraph-card-container center-center f-16 
+                ${paragraph.isAnswered ? "paragraph-is-labeled" : ""}`}
+            >
+              {/* <div className="paragraph-counter center-center mb-20">
+                {paragraph.answered}
+              </div> */}
               <div>
-                {paragraph.context.slice(0,50) + "..."}
+                {props.type === "Sentiment"
+                  ? paragraph.context.slice(0, 50) + "..."
+                  : paragraph.content.slice(0, 50) + "..."}
               </div>
             </div>
           </div>
         ))}
         <div
-          className={
-            `paragraph-card-container center-center f-16 
-              ${isLabeled ? "paragraph-is-labeled" : ""}`
-          }>
+          className={`paragraph-card-container center-center f-16 
+              ${isLabeled ? "paragraph-is-labeled" : ""}`}
+        >
           <div className="paragraph-counter center-center mb-20">0</div>
           <div className="paragraph-content">
             【這篇是示範標過的會變淡】普遍建議複雜一點的比較好。多年前，有項刊登在新英格蘭醫學期刊的研究分析，
@@ -113,7 +126,7 @@ function ParagraphCards(props) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
 export default ParagraphCards;
