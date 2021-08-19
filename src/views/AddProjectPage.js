@@ -67,7 +67,6 @@ function AddProjectPage(props) {
         projectId: String(projectId),
       };
       const res = await axios.get(`${MRC_BASEURL}/projectUsers`, arg);
-      console.log("projectUser", res.data);
       if (res.data && res.data.length > 0) {
         var tempWorkers = [];
         let tempAdmins = [];

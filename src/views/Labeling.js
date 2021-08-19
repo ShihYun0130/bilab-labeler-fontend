@@ -95,13 +95,11 @@ function Labeling() {
       //   userId: profileObj.googleId,
       // };
       // console.log("getTask arg", arg);
-      console.log("taskId", taskId);
       const res = await axios.get(`${MRC_BASEURL}/task`, {
         params: {
           taskId: taskId,
         },
       });
-      console.log("labeling: getTask api", res);
       setTask(res.data);
       const answers = await axios.get(`${MRC_BASEURL}/answers`, {
         params: {

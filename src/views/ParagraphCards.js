@@ -24,7 +24,6 @@ function ParagraphCards(props) {
           articleId: articleId,
         },
       });
-      console.log("res", response);
       setParagraphs(response.data);
       setArticleTitle(response.data[0].articleId.title);
       // setqaList(response.data.qaList)
@@ -66,7 +65,6 @@ function ParagraphCards(props) {
   }
 
   const goToLabel = (taskId) => {
-    console.log("taskkid", taskId);
     // let idx = taskId.split("-")[1];
     // const data = {
     //   articleId: articleId,

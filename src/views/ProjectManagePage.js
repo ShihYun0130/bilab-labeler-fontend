@@ -51,7 +51,7 @@ function ProjectManagePage() {
 
   return (
     <div>
-      <Header isManagePage={true} />
+      <Header isManagePage={false} />
       <div id="project" className="justify-center">
         <div className="working-area-container overflow-scroll project-working-area">
           <div className="justify-center">

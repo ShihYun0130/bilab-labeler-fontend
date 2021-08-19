@@ -1,35 +1,32 @@
 import "./ValidationPage.css";
 import "./Labeling.css";
-import { BASEURL } from "../config";
+import { MRC_BASEURL } from "../config";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
 
 function ValidationPage() {
   const [task, setTask] = useState("");
-  const profileObj = useSelector((state) => state.accountReducer.profileObj);
+  const userId = useSelector((state) => state.accountReducer.userId);
 
   const getTask = async () => {
     const arg = {
-      userId: profileObj.googleId,
-      taskType: "MRCValidation",
+      userId: userId,
     };
-    const res = await axios.post(`${BASEURL}/getValidation`, arg);
+    const res = await axios.get(`${MRC_BASEURL}/validation`, arg);
     setTask(res.data);
   };
 
   useEffect(() => {
     getTask();
-  }, [profileObj.googleId]);
+  }, [userId]);
 
   return (
     <div id="validation" className="justify-center">
       <div className="working-area-container overflow-scroll validation-working-area">
-        <div className="working-article-title body-padding">
-          {task.taskTitle}
-        </div>
+        <div className="working-article-title body-padding">{task.title}</div>
         <div className="working-article-content body-padding">
-          {task.taskContext}
+          {task.taskId.content}
         </div>
         <div className="justify-start mb-30 body-padding">
           <div className="nowrap mr-10">問題：</div>

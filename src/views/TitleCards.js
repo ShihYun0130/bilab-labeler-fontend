@@ -33,8 +33,6 @@ function TitleCards(props) {
           projectId: projectId,
         },
       });
-      console.log("response", response);
-      console.log("projectObj", projectDetail);
       setArticles(response.data);
       setLabelInfo(projectDetail.rule);
     };
