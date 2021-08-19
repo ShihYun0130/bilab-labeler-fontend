@@ -21,7 +21,7 @@ function MainContent(props) {
 
   return (
     <div id="MainContent">
-      <Header isManagePage={false} />
+      <Header isManagePage={true} />
       <Switch>
         <Route path={`${path}/Label/:projectId/:articleId/:idx`}>
           {path === "/MRC" ? <MRCLabel /> : <SentimentalLabel />}

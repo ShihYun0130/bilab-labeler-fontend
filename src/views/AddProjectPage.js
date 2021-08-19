@@ -5,7 +5,7 @@ import "react-responsive-modal/styles.css";
 import Select from "react-select";
 import DescriptionRoundedIcon from "@material-ui/icons/DescriptionRounded";
 import CloseRoundedIcon from "@material-ui/icons/CloseRounded";
-import { BASEURL } from "../config";
+import { MRC_BASEURL } from "../config";
 import { useState, useEffect } from "react";
 import axios from "axios";
 import csv from "csv";
@@ -50,7 +50,7 @@ function AddProjectPage(props) {
   // initialize
   useEffect(() => {
     const getUsers = async () => {
-      const res = await axios.get(`${BASEURL}/users`);
+      const res = await axios.get(`${MRC_BASEURL}/users`);
       setUsers(
         res.data.map((projectUser) => {
           return {
@@ -66,7 +66,7 @@ function AddProjectPage(props) {
       let arg = {
         projectId: String(projectId),
       };
-      const res = await axios.post(`${BASEURL}/projectUsers`, arg);
+      const res = await axios.get(`${MRC_BASEURL}/projectUsers`, arg);
       console.log("projectUser", res.data);
       if (res.data && res.data.length > 0) {
         var tempWorkers = [];
@@ -74,12 +74,12 @@ function AddProjectPage(props) {
         res.data.forEach((projectUser) => {
           if (projectUser.statusCode == "1") {
             tempAdmins.push({
-              value: projectUser.userId,
+              value: projectUser._id,
               label: projectUser.name + " - " + projectUser.email,
             });
           } else {
             tempWorkers.push({
-              value: projectUser.userId,
+              value: projectUser._id,
               label: projectUser.name + " - " + projectUser.email,
             });
           }
@@ -94,13 +94,13 @@ function AddProjectPage(props) {
     if (props.isEdit) {
       // import data from focus project
       let targetProject = props.project;
-      setProjectName(targetProject.projectName);
+      setProjectName(targetProject.name);
       setProjectType({
-        label: targetProject.projectType,
-        value: targetProject.projectType,
+        label: targetProject.type,
+        value: targetProject.type,
       });
-      setLabelInfo(targetProject.labelInfo);
-      getProjectUsers(targetProject.projectId);
+      setLabelInfo(targetProject.rule);
+      getProjectUsers(targetProject._id);
     }
     getUsers();
   }, []);
@@ -145,7 +145,7 @@ function AddProjectPage(props) {
     console.log(arg);
     let res = null;
     try {
-      res = await axios.post(`${BASEURL}/saveProject`, arg);
+      res = await axios.post(`${MRC_BASEURL}/project`, arg);
       console.log("res data", res);
       alert("儲存成功");
     } catch (err) {

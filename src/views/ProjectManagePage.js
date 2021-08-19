@@ -3,10 +3,10 @@ import "./ProjectManagePage.css";
 import "./Labeling.css";
 import "react-responsive-modal/styles.css";
 import { Modal } from "react-responsive-modal";
-import EditProjectPage from "./EditProjectPage"; // temp
+// import EditProjectPage from "./EditProjectPage"; // temp
 import AddProjectPage from "./AddProjectPage"; // temp
 import Header from "../components/Header";
-import { BASEURL } from "../config";
+import { MRC_BASEURL } from "../config";
 import { useState, useEffect } from "react";
 import { useSelector } from "react-redux";
 import axios from "axios";
@@ -30,7 +30,8 @@ function ProjectManagePage() {
         userId: profileObj.googleId,
         statusCode: "1",
       };
-      const res = await axios.post(`${BASEURL}/projects`, arg);
+      const res = await axios.get(`${MRC_BASEURL}/projects`, arg);
+      console.log(res);
       setProjects(res.data);
       console.log("projects", res.data);
     };
@@ -59,7 +60,7 @@ function ProjectManagePage() {
           <div className="center-center flex-wrap">
             {projects
               .sort(function (a, b) {
-                return a.projectId - b.projectId;
+                return a._id - b._id;
               })
               .map((project, idx) => (
                 <div
@@ -69,7 +70,7 @@ function ProjectManagePage() {
                     editProject(project);
                   }}
                 >
-                  <div key={idx}>{project.projectName}</div>
+                  <div key={idx}>{project.name}</div>
                 </div>
               ))}
             <div className="function-button" onClick={addProject}>

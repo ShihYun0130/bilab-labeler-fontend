@@ -30,9 +30,9 @@ function EditProjectPage(props) {
 
   const getUsers = async (project) => {
     let arg = {
-      projectId: project.projectId,
+      projectId: project._id,
     };
-    const res = await axios.post(`${BASEURL}/users`, arg);
+    const res = await axios.get(`${MRC_BASEURL}/users`, arg);
     console.log(
       "users",
       res.data.map((x) => x.email)
@@ -44,9 +44,9 @@ function EditProjectPage(props) {
   // get users in the project and set list.
   const getProjectUsers = async (project) => {
     let arg = {
-      projectId: String(project.projectId),
+      projectId: String(project._id),
     };
-    const res = await axios.post(`${BASEURL}/projectUsers`, arg);
+    const res = await axios.get(`${MRC_BASEURL}/users`, arg);
     console.log("projectUser", res.data);
     setProjectUsers(res.data);
   };
@@ -66,11 +66,11 @@ function EditProjectPage(props) {
     if (!selectedUserId || !selectedStatusCode) return;
     console.log(selectedUserId);
     let arg = {
-      projectId: focusProject.projectId,
+      projectId: focusProject._id,
       userId: selectedUserId,
       statusCode: selectedStatusCode,
     };
-    const res = await axios.post(`${BASEURL}/saveAuth`, arg);
+    const res = await axios.post(`${MRC_BASEURL}/auth`, arg);
     if (res.data.success) {
       alert("success");
     } else {
