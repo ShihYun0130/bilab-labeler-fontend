@@ -98,7 +98,7 @@ function TitleCards(props) {
       <Modal open={open} onClose={onCloseModal} center>
         <h2 className="modal-header">標註注意事項</h2>
         <div className="modal-text">
-          {labelInfo.split("\n").map((i, key) => {
+          {projectDetail.rule.split("\n").map((i, key) => {
             return <p key={key}>{i}</p>;
           })}
         </div>

@@ -64,6 +64,7 @@ export default function EntryMenu() {
         statusCode: "0",
       };
       const res = await axios.get(`${MRC_BASEURL}/projects`, arg);
+      console.log("projects", res);
       setProjects(res.data);
       if (res.data.length) {
         setTaskTypeTitle(focusProject.type);
