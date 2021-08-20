@@ -20,7 +20,7 @@ function App() {
       <Router>
         <div className="App">
           <Switch>
-            <Route path="/MRC" component={MainContentPage} />
+            <Route path="/MRC" render={() => <MainContentPage type="MRC" />} />
             <Route path="/sentiment" render={() => <MainContentPage type="Sentiment" />} />
             <Route path={`/ProjectManage`} component={ProjectManage} />
             <Redirect from="/" to="/MRC" />
