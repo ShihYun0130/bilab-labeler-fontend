@@ -45,14 +45,14 @@ function ParagraphCards(props) {
     }
     // getSetParagraphs();
     // console.info(url)
-    console.info(props.type)
+    // console.info(props.type)
     if (props.type === "MRC") {
       getSetParagraphs();
-      console.log("錯了！！！！")
+      // console.log("錯了！！！！")
     } 
-    else if (!props.type || props.type === "Sentimental") {
+    else if (!props.type || props.type === "Sentiment") {
       getSetSentiParagraphs(); 
-      console.log("我印出了sentitask")
+      // console.log("我印出了sentitask")
     } 
     
   }, [articleId, profileObj.googleId])

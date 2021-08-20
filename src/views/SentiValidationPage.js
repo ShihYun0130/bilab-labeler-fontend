@@ -90,8 +90,8 @@ function SentiValid() {
       
       let tempDict = []
       if(sentimentDict.length === 0){
-
-        aspectList.map((aspectItem, idx) => {
+        console.log("有再組裝", aspectList)
+        res.data.map((aspectItem, idx) => {
           tempDict = [
             ...tempDict,
             {
@@ -101,19 +101,26 @@ function SentiValid() {
           ]
           //console.info(sentimentDict)
         })
+        // console.log(sentimentDict.length)
+        // if(aspectList.length===0){
+        //   console.log("now empty",res.data)
+        //   setAspectList(res.data);
+        // } else{
+        //   console.log("now exists",res.data)
+        //   setSentimentDict(tempDict)
+        // }
         setSentimentDict(tempDict)
-        // console.info(sentimentDict)
+        console.info(sentimentDict)
       }
       
     }
     // if(task.taskId !== "0" && task.taskId){
-    console.log(isTaskSet)
+    console.log("setIsTaskSet", isTaskSet)
     if(isTaskSet === true && task.taskId !== "0" && task.taskId){
       getSentiAspectByTask();
       setIsTaskSet(false);
     }
-  },[articleId, idx, profileObj.googleId, aspectList,isTaskSet])
-
+  },[articleId, idx, profileObj.googleId, aspectList, isTaskSet])
   
   const sendValidation = async () => {
     // let newAspectList = []
@@ -182,6 +189,9 @@ function SentiValid() {
     // console.info(majorAspect);
   };
   const chooseAspect = (aspectItem) => {
+    // console.log(aspectItem, sentimentDict,sentimentDict.filter( item => {
+    //   return(item.aspectId === aspectItem.aspectId)
+    // }))
     setChosenAspect(aspectItem)
     setSentimentList(sentimentDict.filter( item => {
       return(item.aspectId === aspectItem.aspectId)
