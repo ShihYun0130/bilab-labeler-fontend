@@ -1,19 +1,19 @@
-import { useEffect, useState, useRef } from 'react'
-import Button from '@material-ui/core/Button'
-import ClickAwayListener from '@material-ui/core/ClickAwayListener'
-import Grow from '@material-ui/core/Grow'
-import Paper from '@material-ui/core/Paper'
-import Popper from '@material-ui/core/Popper'
-import MenuItem from '@material-ui/core/MenuItem'
-import MenuList from '@material-ui/core/MenuList'
-import { makeStyles } from '@material-ui/core/styles'
-import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown'
-import { Link } from 'react-router-dom'
-import { useSelector } from 'react-redux'
-import axios from 'axios'
-import { useDispatch } from 'react-redux'
+import { useEffect, useState, useRef } from 'react';
+import Button from '@material-ui/core/Button';
+import ClickAwayListener from '@material-ui/core/ClickAwayListener';
+import Grow from '@material-ui/core/Grow';
+import Paper from '@material-ui/core/Paper';
+import Popper from '@material-ui/core/Popper';
+import MenuItem from '@material-ui/core/MenuItem';
+import MenuList from '@material-ui/core/MenuList';
+import { makeStyles } from '@material-ui/core/styles';
+import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
+import { useDispatch } from 'react-redux';
 
-import { MRC_BASEURL } from '../config'
+import { MRC_BASEURL } from '../config';
 
 const useStyles = makeStyles(() => ({
     root: {
@@ -33,89 +33,89 @@ const useStyles = makeStyles(() => ({
         textDecoration: 'none',
         color: '#6184C6',
     },
-}))
+}));
 
 export default function EntryMenu() {
     const focusProject = useSelector(
         (state) => state.projectReducer.focusProject
-    )
-    const classes = useStyles()
-    const [open, setOpen] = useState(false)
-    const anchorRef = useRef(null)
-    const [taskTypeTitle, setTaskTypeTitle] = useState('')
+    );
+    const classes = useStyles();
+    const [open, setOpen] = useState(false);
+    const anchorRef = useRef(null);
+    const [taskTypeTitle, setTaskTypeTitle] = useState('');
 
     // query available tasks
-    const profileObj = useSelector((state) => state.accountReducer.profileObj)
-    const userId = useSelector((state) => state.accountReducer.userId)
-    const [projects, setProjects] = useState()
+    const profileObj = useSelector((state) => state.accountReducer.profileObj);
+    const userId = useSelector((state) => state.accountReducer.userId);
+    const [projects, setProjects] = useState();
 
     // change redux status and write to localStorage
-    const dispatch = useDispatch()
+    const dispatch = useDispatch();
     const dispatchProject = (item) => {
         dispatch({
             type: 'SETPROJECT',
             payload: { focusProject: item },
-        })
-    }
+        });
+    };
 
     useEffect(() => {
         const getProject = async () => {
             const arg = {
                 userId: userId,
                 statusCode: '0',
-            }
-            const res = await axios.get(`${MRC_BASEURL}/projects`)
+            };
+            const res = await axios.get(`${MRC_BASEURL}/projects`);
             const projectsData = res.data.map((data) => ({
                 projectId: data._id,
                 projectName: data.name,
                 projectType: data.type,
                 labelInfo: data.rule,
-            }))
-            console.log('projects', projectsData)
-            setProjects(projectsData)
+            }));
+            console.log('projects', projectsData);
+            setProjects(projectsData);
             if (res.data.length) {
-                setTaskTypeTitle(focusProject.projectName)
+                setTaskTypeTitle(focusProject.projectName);
             }
-        }
-        getProject()
-    }, [profileObj.googleId])
+        };
+        getProject();
+    }, [profileObj.googleId]);
 
     const handleToggle = () => {
-        setOpen((prevOpen) => !prevOpen)
-    }
+        setOpen((prevOpen) => !prevOpen);
+    };
 
     const handleClose = (event) => {
         if (anchorRef.current && anchorRef.current.contains(event.target)) {
-            return
+            return;
         }
 
-        setOpen(false)
-    }
+        setOpen(false);
+    };
 
     const handleMenuItemClick = (event, index) => {
         // setSelectedIndex(index);
         // setAnchorEl(null);
-        setTaskTypeTitle(projects[index].projectName)
-        dispatchProject(projects[index])
-        handleClose(event)
-    }
+        setTaskTypeTitle(projects[index].projectName);
+        dispatchProject(projects[index]);
+        handleClose(event);
+    };
 
     function handleListKeyDown(event) {
         if (event.key === 'Tab') {
-            event.preventDefault()
-            setOpen(false)
+            event.preventDefault();
+            setOpen(false);
         }
     }
 
     // return focus to the button when we transitioned from !open -> open
-    const prevOpen = useRef(open)
+    const prevOpen = useRef(open);
     useEffect(() => {
         if (prevOpen.current === true && open === false) {
-            anchorRef.current.focus()
+            anchorRef.current.focus();
         }
 
-        prevOpen.current = open
-    }, [open])
+        prevOpen.current = open;
+    }, [open]);
 
     return (
         <div className={classes.root}>
@@ -149,7 +149,9 @@ export default function EntryMenu() {
                                     >
                                         {projects
                                             .sort(function (a, b) {
-                                                return a.projectId - b.projectId
+                                                return (
+                                                    a.projectId - b.projectId
+                                                );
                                             })
                                             .map((project, index) => (
                                                 <Link
@@ -178,5 +180,5 @@ export default function EntryMenu() {
                 </Popper>
             </div>
         </div>
-    )
+    );
 }
