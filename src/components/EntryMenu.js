@@ -17,22 +17,22 @@ import { MRC_BASEURL } from '../config';
 
 const useStyles = makeStyles(() => ({
   root: {
-    display: 'flex',
+    display: 'flex'
   },
   button: {
     fontFamily: 'Poppins, sans-serif',
     fontSize: '25px',
-    color: '#6184C6',
+    color: '#6184C6'
   },
   paper: {
     borderRadius: '10px',
     color: '#6184C6',
-    width: '150%',
+    width: '150%'
   },
   link: {
     textDecoration: 'none',
-    color: '#6184C6',
-  },
+    color: '#6184C6'
+  }
 }));
 
 export default function EntryMenu() {
@@ -54,7 +54,7 @@ export default function EntryMenu() {
   const dispatchProject = (item) => {
     dispatch({
       type: 'SETPROJECT',
-      payload: { focusProject: item },
+      payload: { focusProject: item }
     });
   };
 
@@ -62,14 +62,14 @@ export default function EntryMenu() {
     const getProject = async () => {
       const arg = {
         userId: userId,
-        statusCode: '0',
+        statusCode: '0'
       };
       const res = await axios.get(`${MRC_BASEURL}/projects`);
       const projectsData = res.data.map((data) => ({
         projectId: data._id,
         projectName: data.name,
         projectType: data.type,
-        labelInfo: data.rule,
+        labelInfo: data.rule
       }));
       console.log('projects', projectsData);
       setProjects(projectsData);
