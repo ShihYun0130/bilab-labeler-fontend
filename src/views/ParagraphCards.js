@@ -24,7 +24,13 @@ function ParagraphCards(props) {
           articleId: articleId,
         },
       });
-      setParagraphs(response.data);
+      console.log('response', response);
+      const paragraphsData = response.data.map((data) => ({
+        taskId: data._id,
+        context: data.content,
+        answered: data.isAnswered,
+      }));
+      setParagraphs(paragraphsData);
       setArticleTitle(response.data[0].articleId.title);
       // setqaList(response.data.qaList)
     };
@@ -91,24 +97,18 @@ function ParagraphCards(props) {
             key={idx}
             className="paragraph-link"
             onClick={() => {
-              goToLabel(
-                props.type === 'Sentiment' ? paragraph._id : paragraph._id
-              );
+              goToLabel(paragraph.taskId);
             }}
           >
             <div
               key={idx}
               className={`paragraph-card-container center-center f-16 
-                ${paragraph.isAnswered ? 'paragraph-is-labeled' : ''}`}
+                ${paragraph.answered ? 'paragraph-is-labeled' : ''}`}
             >
               {/* <div className="paragraph-counter center-center mb-20">
                 {paragraph.answered}
               </div> */}
-              <div>
-                {props.type === 'Sentiment'
-                  ? paragraph.context.slice(0, 50) + '...'
-                  : paragraph.content.slice(0, 50) + '...'}
-              </div>
+              <div>{paragraph.context.slice(0, 50) + '...'}</div>
             </div>
           </div>
         ))}

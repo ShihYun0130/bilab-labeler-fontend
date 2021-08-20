@@ -31,9 +31,13 @@ function ProjectManagePage() {
         statusCode: '1',
       };
       const res = await axios.get(`${MRC_BASEURL}/projects`, arg);
-      console.log(res);
-      setProjects(res.data);
-      console.log('projects', res.data);
+      const projectsData = res.data.map((data) => ({
+        projectId: data._id,
+        projectName: data.name,
+        projectType: data.type,
+        labelInfo: data.rule,
+      }));
+      setProjects(projectsData);
     };
     getProject();
   }, [profileObj.googleId, openAdd]);
@@ -60,7 +64,7 @@ function ProjectManagePage() {
           <div className="center-center flex-wrap">
             {projects
               .sort(function (a, b) {
-                return a._id - b._id;
+                return a.projectId - b.projectId;
               })
               .map((project, idx) => (
                 <div
@@ -70,7 +74,7 @@ function ProjectManagePage() {
                     editProject(project);
                   }}
                 >
-                  <div key={idx}>{project.name}</div>
+                  <div key={idx}>{project.projectName}</div>
                 </div>
               ))}
             <div className="function-button" onClick={addProject}>

@@ -5,7 +5,7 @@ import 'react-responsive-modal/styles.css';
 import FormControl from '@material-ui/core/FormControl';
 import Select from '@material-ui/core/Select';
 import InputLabel from '@material-ui/core/InputLabel';
-import { BASEURL } from '../config';
+import { MRC_BASEURL } from '../config';
 import { useState, useEffect } from 'react';
 import axios from 'axios';
 
@@ -30,7 +30,7 @@ function EditProjectPage(props) {
 
   const getUsers = async (project) => {
     let arg = {
-      projectId: project._id,
+      projectId: project.projectId,
     };
     const res = await axios.get(`${MRC_BASEURL}/users`, arg);
     console.log(
@@ -44,7 +44,7 @@ function EditProjectPage(props) {
   // get users in the project and set list.
   const getProjectUsers = async (project) => {
     let arg = {
-      projectId: String(project._id),
+      projectId: String(project.projectId),
     };
     const res = await axios.get(`${MRC_BASEURL}/users`, arg);
     console.log('projectUser', res.data);
@@ -66,7 +66,7 @@ function EditProjectPage(props) {
     if (!selectedUserId || !selectedStatusCode) return;
     console.log(selectedUserId);
     let arg = {
-      projectId: focusProject._id,
+      projectId: focusProject.projectId,
       userId: selectedUserId,
       statusCode: selectedStatusCode,
     };

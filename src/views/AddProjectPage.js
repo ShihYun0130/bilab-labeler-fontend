@@ -93,13 +93,13 @@ function AddProjectPage(props) {
     if (props.isEdit) {
       // import data from focus project
       let targetProject = props.project;
-      setProjectName(targetProject.name);
+      setProjectName(targetProject.projectName);
       setProjectType({
-        label: targetProject.type,
-        value: targetProject.type,
+        label: targetProject.projectType,
+        value: targetProject.projectType,
       });
-      setLabelInfo(targetProject.rule);
-      getProjectUsers(targetProject._id);
+      setLabelInfo(targetProject.labelInfo);
+      getProjectUsers(targetProject.projectId);
     }
     getUsers();
   }, []);

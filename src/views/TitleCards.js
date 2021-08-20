@@ -33,7 +33,14 @@ function TitleCards(props) {
           projectId: projectId,
         },
       });
-      setArticles(response.data);
+      console.log('articles', response);
+      const articlesData = response.data.map((data) => ({
+        articleId: data._id,
+        articleTitle: data.title,
+        projectId: data.projectId,
+        totalTaskNum: data.totalTaskNum,
+      }));
+      setArticles(articlesData);
       setLabelInfo(projectDetail.labelInfo);
     };
     const getSentiArticles = async () => {
@@ -78,14 +85,10 @@ function TitleCards(props) {
           <Link
             key={idx}
             className="title-card-link"
-            to={`${history.location.pathname}/${
-              props.type === 'Sentiment' ? article.articleId : article._id
-            }`}
+            to={`${history.location.pathname}/${article.articleId}`}
           >
             <div className="title-card">
-              {props.type === 'Sentiment'
-                ? article.articleTitle.slice(0, 30) + '...'
-                : article.title.slice(0, 30) + '...'}
+              {article.articleTitle.slice(0, 30) + '...'}
             </div>
           </Link>
         ))}
@@ -96,7 +99,7 @@ function TitleCards(props) {
       <Modal open={open} onClose={onCloseModal} center>
         <h2 className="modal-header">標註注意事項</h2>
         <div className="modal-text">
-          {projectDetail.labelInfo.split('\n').map((i, key) => {
+          {labelInfo.split('\n').map((i, key) => {
             return <p key={key}>{i}</p>;
           })}
         </div>

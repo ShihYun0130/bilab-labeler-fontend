@@ -35,7 +35,7 @@ function MainContent(props) {
         <Route path={`${path}/Validation`}>
           {path === '/MRC' ? <MRCValidation /> : <SentimentalValidation />}
         </Route>
-        <Redirect from={path} to={`${path}/Label/${focusProject._id}`} />
+        <Redirect from={path} to={`${path}/Label/${focusProject.projectId}`} />
       </Switch>
     </div>
   );
