@@ -81,25 +81,12 @@ function ValidationPage() {
       decisionId: decision._id,
       decisionResult: decisionResult,
     };
-    console.log('decision result', decisionData);
-    // const res = await axios.post(`${MRC_BASEURL}/decision`, decisionData);
-    // console.log('decision result', res);
-    // window.location.reload();
+    const res = await axios.post(`${MRC_BASEURL}/decision`, decisionData);
+    console.log('decision result', res);
+    window.location.reload();
     return;
   };
 
-  // if (!validation && !decision) {
-  //   return (
-  //     <Loader
-  //       className="center"
-  //       type="RevolvingDot"
-  //       color="#4D87EB"
-  //       height={100}
-  //       width={100}
-  //       timeout={3000} //3 secs
-  //     />
-  //   );
-  // }
   return (
     <div id="validation" className="justify-center">
       {!decision && !validation ? (
