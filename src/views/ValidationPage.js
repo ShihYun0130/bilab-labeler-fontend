@@ -4,15 +4,12 @@ import { MRC_BASEURL } from '../config';
 import React, { useState, useEffect } from 'react';
 import { useSelector } from 'react-redux';
 import axios from 'axios';
-import Loader from 'react-loader-spinner';
 import {
-  FormLabel,
   FormControl,
   RadioGroup,
   Radio,
   FormControlLabel,
 } from '@material-ui/core';
-import { CompassCalibrationOutlined } from '@material-ui/icons';
 
 function ValidationPage() {
   const [validation, setValidation] = useState();
@@ -36,7 +33,7 @@ function ValidationPage() {
       const res = await axios.get(`${MRC_BASEURL}/decision`, {
         params: { userId: userId },
       });
-      console.log('decision', res);
+      // console.log('decision', res);
       setDecision(res.data);
       if (!res) {
         const vali = await axios.get(`${MRC_BASEURL}/validation`, {
@@ -68,7 +65,7 @@ function ValidationPage() {
       validationStartIdx: startIndex,
     };
     const res = await axios.post(`${MRC_BASEURL}/validation`, validationData);
-    console.log('validation result', res);
+    // console.log('validation result', res);
     window.location.reload();
     return;
   };
@@ -82,7 +79,7 @@ function ValidationPage() {
       decisionResult: decisionResult,
     };
     const res = await axios.post(`${MRC_BASEURL}/decision`, decisionData);
-    console.log('decision result', res);
+    // console.log('decision result', res);
     window.location.reload();
     return;
   };
