@@ -31,12 +31,12 @@ function ParagraphCards(props) {
         array[index] = {
           taskId: value._id,
           context: value.content,
-          answered: value.isAnswered,
           articleTitle: value.articleId.title,
+          answered: value.answerNum,
           idx: index,
         };
       });
-      // console.log('response', response);
+      console.log('response', response);
       setParagraphs(response.data);
       setArticleTitle(response.data[0].articleTitle);
       // setqaList(response.data.qaList)
@@ -123,9 +123,9 @@ function ParagraphCards(props) {
               className={`paragraph-card-container center-center f-16 
                 ${paragraph.answered ? 'paragraph-is-labeled' : ''}`}
             >
-              {/* <div className="paragraph-counter center-center mb-20">
+              <div className="paragraph-counter center-center mb-20">
                 {paragraph.answered}
-              </div> */}
+              </div>
               <div>{paragraph.context.slice(0, 50) + '...'}</div>
             </div>
           </div>
