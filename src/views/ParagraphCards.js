@@ -6,6 +6,7 @@ import axios from 'axios';
 import 'react-loader-spinner/dist/loader/css/react-spinner-loader.css';
 import Loader from 'react-loader-spinner';
 import { useSelector } from 'react-redux';
+import { useDispatch } from 'react-redux';
 
 function ParagraphCards(props) {
   let history = useHistory();
@@ -15,6 +16,7 @@ function ParagraphCards(props) {
   const [paragraphs, setParagraphs] = useState([]);
   let isLabeled = true;
   const profileObj = useSelector((state) => state.accountReducer.profileObj);
+  const dispatch = useDispatch();
 
   useEffect(() => {
     const getSetParagraphs = async () => {
@@ -24,14 +26,19 @@ function ParagraphCards(props) {
           articleId: articleId,
         },
       });
-      console.log('response', response);
-      const paragraphsData = response.data.map((data) => ({
-        taskId: data._id,
-        context: data.content,
-        answered: data.isAnswered,
-      }));
-      setParagraphs(paragraphsData);
-      setArticleTitle(response.data[0].articleId.title);
+      // console.log('response', response);
+      response.data.forEach((value, index, array) => {
+        array[index] = {
+          taskId: value._id,
+          context: value.content,
+          answered: value.isAnswered,
+          articleTitle: value.articleId.title,
+          idx: index,
+        };
+      });
+      // console.log('response', response);
+      setParagraphs(response.data);
+      setArticleTitle(response.data[0].articleTitle);
       // setqaList(response.data.qaList)
     };
     const getSetSentiParagraphs = async () => {
@@ -70,7 +77,7 @@ function ParagraphCards(props) {
     );
   }
 
-  const goToLabel = (taskId) => {
+  const goToLabel = (selectedTaskIdx) => {
     // let idx = taskId.split("-")[1];
     // const data = {
     //   articleId: articleId,
@@ -80,7 +87,18 @@ function ParagraphCards(props) {
     //   paragraph: paragraphs[idx]
     // };
     // sessionStorage.setItem("paragraph", JSON.stringify(data));
-    history.push(`${url}/${taskId}`);
+
+    // save all taskData to localStorage
+
+    const dispatchTaskList = () => {
+      dispatch({
+        type: 'SETTASKS',
+        payload: { tasks: paragraphs },
+      });
+    };
+    dispatchTaskList();
+
+    history.push(`${url}/${selectedTaskIdx}`);
   };
 
   return (
@@ -97,7 +115,7 @@ function ParagraphCards(props) {
             key={idx}
             className="paragraph-link"
             onClick={() => {
-              goToLabel(paragraph.taskId);
+              goToLabel(idx);
             }}
           >
             <div

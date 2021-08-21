@@ -4,11 +4,13 @@ import { useEffect, useState } from 'react';
 import React from 'react';
 import { MRC_BASEURL } from '../config';
 import axios from 'axios';
-import { useSelector } from 'react-redux';
+import { useSelector, useDispatch } from 'react-redux';
 import Tooltip from '@material-ui/core/Tooltip';
+import Loader from 'react-loader-spinner';
 
 function Labeling() {
   let history = useHistory();
+  const dispatch = useDispatch();
   let { params } = useRouteMatch();
   let { projectId, articleId, idx } = params;
   let { idx: taskId } = useParams();
@@ -23,6 +25,9 @@ function Labeling() {
   const [qaPairs, setQaPairs] = useState();
   const profileObj = useSelector((state) => state.accountReducer.profileObj);
   const userId = useSelector((state) => state.accountReducer.userId);
+  const taskList = useSelector((state) => state.taskReducer.tasks);
+  // const taskIdx = useSelector((state) => state.taskReducer.taskIdx);
+  // console.log('taskliss', taskList, taskId);
 
   // [Todos] use api to get matched_substring
   var matched_substring = [
@@ -87,23 +92,16 @@ function Labeling() {
   useEffect(() => {
     const getTask = async () => {
       let idNo = articleId.replace('articleId', '');
-      // let taskId = "taskId" + idNo + "-" + idx;
-      // const arg = {
-      //   articleId: articleId,
-      //   taskId: taskId,
-      //   taskType: "MRC",
-      //   userId: profileObj.googleId,
-      // };
-      // console.log("getTask arg", arg);
+      // console.log('taskid', taskList[taskId]);
       const res = await axios.get(`${MRC_BASEURL}/task`, {
         params: {
-          taskId: taskId,
+          taskId: taskList[taskId].taskId,
         },
       });
       setTask(res.data);
       const answers = await axios.get(`${MRC_BASEURL}/answers`, {
         params: {
-          taskId: taskId,
+          taskId: taskList[taskId].taskId,
           userId: userId,
         },
       });
@@ -162,7 +160,7 @@ function Labeling() {
       startIdx: startIndex,
     };
     const res = await axios.post(`${MRC_BASEURL}/answer`, newAnswer);
-    console.log('labeling: saveAnswer api', res);
+    // console.log('labeling: saveAnswer api', res);
   };
 
   const handleNewQuestion = () => {
@@ -175,7 +173,7 @@ function Labeling() {
       answerString: answer,
       answerStart: startIndex,
     };
-    console.log(args);
+    // console.log(args);
 
     // re-init answers and questions
     saveAnswer();
@@ -189,8 +187,23 @@ function Labeling() {
 
   const goToNextTask = () => {
     handleNewQuestion();
-    history.push(`/MRC/Label/${projectId}/${articleId}/${parseInt(idx) + 1}`);
+    history.push(
+      `/MRC/Label/${projectId}/${articleId}/${parseInt(taskId) + 1}`
+    );
   };
+
+  if (!taskList || !task) {
+    return (
+      <Loader
+        className="center"
+        type="RevolvingDot"
+        color="#4D87EB"
+        height={100}
+        width={100}
+        timeout={3000} //3 secs
+      />
+    );
+  }
 
   return (
     <div id="Labeling" className="justify-center">
@@ -236,11 +249,11 @@ function Labeling() {
               新增題目
             </div>
           )}
-          {/* {idx < taskInfo.totalTaskNum - 1 && (
+          {taskList.length - 1 > taskId && (
             <div onClick={() => goToNextTask()}>
               <div className="function-button">下一段</div>
             </div>
-          )} */}
+          )}
         </div>
       </div>
       <div className="question-history-container align-start">

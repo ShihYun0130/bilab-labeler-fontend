@@ -1,6 +1,4 @@
-const initialState = {
-  projects: [],
-};
+const initialState = {};
 
 export default function projectReducer(state = initialState, action) {
   switch (action.type) {
