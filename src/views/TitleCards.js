@@ -56,11 +56,16 @@ function TitleCards(props) {
     // console.info(props.type)
     if (!props.type || props.type === 'MRC') {
       getArticles();
-    } else if (props.type === 'Sentiment') {
-      console.log('hehe');
-      getSentiArticles();
-    } else {
-      setArticles(fakeSentimentalTitles);
+
+    } 
+    else if (props.type === "Sentiment") {
+      // console.log('hehe');
+      getSentiArticles();  
+      
+    } 
+    else {
+      setArticles(fakeSentimentalTitles)
+
     }
   }, [props.type, profileObj.googleId, projectId]);
 

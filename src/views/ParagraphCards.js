@@ -50,18 +50,25 @@ function ParagraphCards(props) {
       };
       const response = await axios.post(actionURL, arg);
       // console.log('res', response)
+      // console.log("我印出了sentitask")
       setParagraphs(response.data.taskList);
       setArticleTitle(response.data.articleTitle);
       // setqaList(response.data.qaList)
     };
     // getSetParagraphs();
     // console.info(url)
-    if (!props.type || props.type === 'MRC') {
+    // console.info(props.type)
+    if (props.type === "MRC") {
       getSetParagraphs();
-    } else if (props.type === 'Sentimental') {
-      getSetSentiParagraphs();
-    }
-  }, [articleId, profileObj.googleId]);
+      // console.log("錯了！！！！")
+    } 
+    else if (!props.type || props.type === "Sentiment") {
+      getSetSentiParagraphs(); 
+      // console.log("我印出了sentitask")
+    } 
+    
+  }, [articleId, profileObj.googleId])
+
 
   // When api not get responding
   if (!paragraphs || !paragraphs.length) {

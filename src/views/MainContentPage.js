@@ -24,10 +24,13 @@ function MainContent(props) {
       <Header isManagePage={false} />
       <Switch>
         <Route path={`${path}/Label/:projectId/:articleId/:idx`}>
-          {path === '/MRC' ? <MRCLabel /> : <SentimentalLabel />}
+          { path === '/MRC' 
+            ? <MRCLabel  type="MRC" />
+            : <SentimentalLabel type="Sentiment" />
+          }
         </Route>
         <Route path={`${path}/Label/:projectId/:articleId`}>
-          <ParagraphCards />
+          <ParagraphCards  type={props.type}/>
         </Route>
         <Route path={`${path}/Label/:projectId`}>
           <TitleCards type={props.type} />
