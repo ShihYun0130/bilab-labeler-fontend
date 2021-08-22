@@ -8,12 +8,12 @@ import MenuItem from '@material-ui/core/MenuItem';
 import MenuList from '@material-ui/core/MenuList';
 import { makeStyles } from '@material-ui/core/styles';
 import ArrowDropDownIcon from '@material-ui/icons/ArrowDropDown';
-import { Link } from "react-router-dom";
-import { useSelector} from 'react-redux';
-import axios from 'axios'
+import { Link } from 'react-router-dom';
+import { useSelector } from 'react-redux';
+import axios from 'axios';
 import { useDispatch } from 'react-redux';
 
-import { BASEURL } from '../config';
+import { MRC_BASEURL } from '../config';
 
 const useStyles = makeStyles(() => ({
   root: {
@@ -27,48 +27,58 @@ const useStyles = makeStyles(() => ({
   paper: {
     borderRadius: '10px',
     color: '#6184C6',
-    width: '150%'
+    width: '150%',
   },
   link: {
     textDecoration: 'none',
     color: '#6184C6',
-  }
+  },
 }));
 
 export default function EntryMenu() {
-  const focusProject = useSelector(state => state.projectReducer.focusProject);
+  const focusProject = useSelector(
+    (state) => state.projectReducer.focusProject
+  );
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef(null);
-  const [taskTypeTitle, setTaskTypeTitle] = useState("")
+  const [taskTypeTitle, setTaskTypeTitle] = useState('');
 
   // query available tasks
-  const profileObj = useSelector(state => state.accountReducer.profileObj);
+  const profileObj = useSelector((state) => state.accountReducer.profileObj);
+  const userId = useSelector((state) => state.accountReducer.userId);
   const [projects, setProjects] = useState();
 
   // change redux status and write to localStorage
   const dispatch = useDispatch();
   const dispatchProject = (item) => {
-      dispatch({
-          type: 'SETPROJECT',
-          payload: {focusProject:item}
-      });
+    dispatch({
+      type: 'SETPROJECT',
+      payload: { focusProject: item },
+    });
   };
 
   useEffect(() => {
     const getProject = async () => {
       const arg = {
-        userId: profileObj.googleId,
-        statusCode: "0"
-      }
-      const res = await axios.post(`${BASEURL}/projects`, arg)
-      setProjects(res.data);
-      if(res.data.length) {
+        userId: userId,
+        statusCode: '0',
+      };
+      const res = await axios.get(`${MRC_BASEURL}/projects`);
+      const projectsData = res.data.map((data) => ({
+        projectId: data._id,
+        projectName: data.name,
+        projectType: data.type,
+        labelInfo: data.rule,
+      }));
+      console.log('projects', projectsData);
+      setProjects(projectsData);
+      if (res.data.length) {
         setTaskTypeTitle(focusProject.projectName);
       }
     };
     getProject();
-  }, [profileObj.googleId])
+  }, [profileObj.googleId]);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
@@ -120,23 +130,43 @@ export default function EntryMenu() {
           {taskTypeTitle}
           <ArrowDropDownIcon />
         </Button>
-        <Popper open={open} placement='bottom-start' anchorEl={anchorRef.current} role={undefined} transition disablePortal>
+        <Popper
+          open={open}
+          placement="bottom-start"
+          anchorEl={anchorRef.current}
+          role={undefined}
+          transition
+          disablePortal
+        >
           {({ TransitionProps }) => (
-            <Grow
-              {...TransitionProps}
-            >
+            <Grow {...TransitionProps}>
               <Paper className={classes.paper}>
                 <ClickAwayListener onClickAway={handleClose}>
-                  <MenuList autoFocusItem={open} id="menu-list-grow" onKeyDown={handleListKeyDown}>
-                  {projects.sort(function (a, b){return a.projectId - b.projectId;}).map((project, index) => (
-                    <Link key={index} className={classes.link} to={`/${project.projectType}/Label/${project.projectId}`}> 
-                      <MenuItem
-                        key={index} 
-                        onClick={(event) => handleMenuItemClick(event, index)}>
-                        {project.projectName}
-                      </MenuItem>
-                    </Link>
-                  ))}
+                  <MenuList
+                    autoFocusItem={open}
+                    id="menu-list-grow"
+                    onKeyDown={handleListKeyDown}
+                  >
+                    {projects
+                      .sort(function (a, b) {
+                        return a.projectId - b.projectId;
+                      })
+                      .map((project, index) => (
+                        <Link
+                          key={index}
+                          className={classes.link}
+                          to={`/${project.projectType}/Label/${project.projectId}`}
+                        >
+                          <MenuItem
+                            key={index}
+                            onClick={(event) =>
+                              handleMenuItemClick(event, index)
+                            }
+                          >
+                            {project.projectName}
+                          </MenuItem>
+                        </Link>
+                      ))}
                   </MenuList>
                 </ClickAwayListener>
               </Paper>
