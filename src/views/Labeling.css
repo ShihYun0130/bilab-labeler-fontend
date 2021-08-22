@@ -139,3 +139,15 @@
   padding: 0 5px;
   padding-bottom: 15px;
 }
+
+.underline {
+  text-decoration: underline;
+  text-decoration-color: rgb(127, 216, 110);
+  text-decoration-thickness: 4px;
+}
+
+.overline {
+  text-decoration: overline;
+  text-decoration-color: rgb(110, 161, 216);
+  text-decoration-thickness: 4px;
+}
