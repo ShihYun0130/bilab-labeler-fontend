@@ -15,6 +15,7 @@ function ProjectManagePage() {
   const [projects, setProjects] = useState([]);
   const [focusProject, setFocusProject] = useState();
 
+  const userId = useSelector((state) => state.accountReducer.userId);
   const profileObj = useSelector((state) => state.accountReducer.profileObj);
   /** open edit modal */
   const [open, setOpen] = useState(false);
@@ -26,11 +27,11 @@ function ProjectManagePage() {
 
   useEffect(() => {
     const getProject = async () => {
+      console.log(userId)
       const arg = {
-        userId: profileObj.googleId,
         statusCode: '1',
       };
-      const res = await axios.get(`${MRC_BASEURL}/projects`, arg);
+      const res = await axios.get(`${MRC_BASEURL}/projects?userId=${userId}`, arg);
       const projectsData = res.data.map((data) => ({
         projectId: data._id,
         projectName: data.name,
@@ -40,7 +41,7 @@ function ProjectManagePage() {
       setProjects(projectsData);
     };
     getProject();
-  }, [profileObj.googleId, openAdd]);
+  }, [userId, openAdd]);
 
   const editProject = (project) => {
     setFocusProject(project);

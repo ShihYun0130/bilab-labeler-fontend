@@ -60,11 +60,7 @@ export default function EntryMenu() {
 
   useEffect(() => {
     const getProject = async () => {
-      const arg = {
-        userId: userId,
-        statusCode: '0',
-      };
-      const res = await axios.get(`${MRC_BASEURL}/projects`);
+      const res = await axios.get(`${MRC_BASEURL}/projects?userId=${userId}`);
       const projectsData = res.data.map((data) => ({
         projectId: data._id,
         projectName: data.name,
@@ -78,7 +74,7 @@ export default function EntryMenu() {
       }
     };
     getProject();
-  }, [profileObj.googleId]);
+  }, [userId]);
 
   const handleToggle = () => {
     setOpen((prevOpen) => !prevOpen);
