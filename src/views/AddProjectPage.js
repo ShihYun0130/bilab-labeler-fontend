@@ -152,7 +152,7 @@ function AddProjectPage(props) {
       } catch (err) {
         alert(err);
       }
-      props.onCloseCallback();
+      window.location.reload();
       return
     }
     try {
@@ -162,7 +162,7 @@ function AddProjectPage(props) {
     } catch (err) {
       alert(err);
     }
-    props.onCloseCallback();
+    window.location.reload();
     return
   };
 

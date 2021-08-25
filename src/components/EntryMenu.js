@@ -47,7 +47,7 @@ export default function EntryMenu() {
   // query available tasks
   const profileObj = useSelector((state) => state.accountReducer.profileObj);
   const userId = useSelector((state) => state.accountReducer.userId);
-  const [projects, setProjects] = useState();
+  const [projects, setProjects] = useState([]);
 
   // change redux status and write to localStorage
   const dispatch = useDispatch();
