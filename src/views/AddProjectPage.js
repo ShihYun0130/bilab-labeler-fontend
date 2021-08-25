@@ -12,6 +12,7 @@ import csv from 'csv';
 import Dropzone from 'react-dropzone';
 import { useSelector } from 'react-redux';
 import { Modal } from 'react-responsive-modal';
+import {Alert, AlertTitle} from '@material-ui/lab';
 
 function AddProjectPage(props) {
   const profileObj = useSelector((state) => state.accountReducer.profileObj);
@@ -272,6 +273,15 @@ function AddProjectPage(props) {
       </div>
       <div className="align-start body-padding mt-20">
         <div className="nowrap mb-10">上傳檔案：</div>
+          <div className="format-info mb-10">
+            <Alert severity="info">
+              <AlertTitle>MRC上傳格式</AlertTitle>
+              • 只提供.csv格式的資料集，且大小<strong>不可以超過10MB</strong><br/>
+              • csv檔請勿包含Header在第一行<br/>
+              • 每行請以 <strong>文章內容, 文章編號-段數編號</strong> 格式保存<br/>
+              <span className="examples">ex: 這是編號第5566篇文章的第一段內容, 5566-0</span>
+            </Alert>
+          </div>
         {fileObj.fileName !== '' ? (
           <div className="justify-center file-display" onClick={onCancelUpload}>
             <div className="flex-wrap mr-5">
