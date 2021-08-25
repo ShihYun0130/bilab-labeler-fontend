@@ -39,7 +39,10 @@ function SentiLabeling() {
   const [startId, setStartId] = useState(0);
 
   const profileObj = useSelector(state => state.accountReducer.profileObj);
+  const userId = useSelector((state) => state.accountReducer.userId);
+  const taskList = useSelector((state) => state.taskReducer.tasks);
   const [task, setTask] = useState();
+
   const maxParagraph = 10;
 
   const classes = useStyles();
@@ -48,15 +51,16 @@ function SentiLabeling() {
   useEffect(() => {
     const getSentiTask = async () => {
       
-      let idNo = articleId.replace("articleId", "")
+      let idNo = articleId;
       let taskId = "taskId"+idNo+"-"+idx
+      console.log(articleId)
       const arg = {
-        articleId: articleId,
+        articleId: articleId.replace('articleId', ''),
         taskId: taskId,
         taskType: "sentiment",
         userId: profileObj.googleId
       }
-      // console.log("getSentiTask arg", arg)
+      console.log("getSentiTask arg", arg)
       const res = await axios.post(`${BASEURL}/getSentiTask`, arg);
       // console.log('labeling: getSentiTask api', res);
       setTask(res.data);

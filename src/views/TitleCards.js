@@ -33,7 +33,7 @@ function TitleCards(props) {
           projectId: projectId,
         },
       });
-      console.log('articles', response);
+      // console.log('articles', response);
       const articlesData = response.data.map((data) => ({
         articleId: data._id,
         articleTitle: data.title,
@@ -41,6 +41,7 @@ function TitleCards(props) {
         totalTaskNum: data.totalTaskNum,
       }));
       setArticles(articlesData);
+      // console.info("projectDetail", projectDetail)
       setLabelInfo(projectDetail.labelInfo);
     };
     const getSentiArticles = async () => {
@@ -50,10 +51,18 @@ function TitleCards(props) {
         projectId: projectId,
       };
       const response = await axios.post(actionURL, arg);
-      setArticles(response.data.articleList);
-      setLabelInfo(response.data.labelInfo);
+      
+      const articlesData = response.data.articleList.map((data) => ({
+        articleId: data._id,
+        articleTitle: data.articleTitle,
+        projectId: data.projectId,
+        totalTasks: data.totalTasks,
+      }));
+      // console.info(articlesData)
+      setArticles(articlesData);
+      setLabelInfo(projectDetail.labelInfo);
     };
-    // console.info(props.type)
+    // console.info(projectId)
     if (!props.type || props.type === 'MRC') {
       getArticles();
 

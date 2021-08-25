@@ -46,9 +46,19 @@ function ParagraphCards(props) {
       let arg = {
         userId: profileObj.googleId,
         taskType: 'sentiment',
-        articleId: articleId,
+        _id: articleId,
       };
       const response = await axios.post(actionURL, arg);
+      // response.data.taskList.forEach((value, index, array) => {
+      //   array[index] = {
+      //     taskId: value._id,
+      //     context: value.context,
+      //     articleTitle: value.articleId.taskTitle,
+      //     aspectPool: value.aspectPool,
+      //     idx: index,
+      //     isAnswered:value.isAnswered,
+      //   };
+      // });
       // console.log('res', response)
       // console.log("我印出了sentitask")
       setParagraphs(response.data.taskList);
