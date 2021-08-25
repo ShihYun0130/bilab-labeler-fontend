@@ -53,7 +53,7 @@ function SentiLabeling() {
       
       let idNo = articleId;
       let taskId = "taskId"+idNo+"-"+idx
-      console.log(articleId)
+      console.log(taskList)
       const arg = {
         articleId: articleId.replace('articleId', ''),
         taskId: taskId,

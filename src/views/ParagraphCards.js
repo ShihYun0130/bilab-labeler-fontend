@@ -49,17 +49,17 @@ function ParagraphCards(props) {
         _id: articleId,
       };
       const response = await axios.post(actionURL, arg);
-      // response.data.taskList.forEach((value, index, array) => {
-      //   array[index] = {
-      //     taskId: value._id,
-      //     context: value.context,
-      //     articleTitle: value.articleId.taskTitle,
-      //     aspectPool: value.aspectPool,
-      //     idx: index,
-      //     isAnswered:value.isAnswered,
-      //   };
-      // });
-      // console.log('res', response)
+      response.data.taskList.forEach((value, index, array) => {
+        array[index] = {
+          _id: value._id,
+          context: value.context,
+          taskTitle: value.taskTitle,
+          aspectPool: value.aspectPool,
+          isAnswered:value.isAnswered,
+          idx: index,
+        };
+      });
+      console.log('res', response.data.taskList)
       // console.log("我印出了sentitask")
       setParagraphs(response.data.taskList);
       setArticleTitle(response.data.articleTitle);
