@@ -34,8 +34,10 @@ function ValidationPage() {
         params: { userId: userId },
       });
       // console.log('decision', res);
-      setDecision(res.data);
-      if (!res) {
+      if(res && res.data._id) {
+        setDecision(res.data);
+      }
+      else {
         const vali = await axios.get(`${MRC_BASEURL}/validation`, {
           params: { userId: userId },
         });
