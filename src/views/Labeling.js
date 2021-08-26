@@ -154,7 +154,7 @@ function Labeling() {
   const saveAnswer = async () => {
     let newAnswer = {
       userId: userId,
-      taskId: taskId,
+      taskId: taskList[taskId].taskId,
       question: question,
       answer: answer,
       startIdx: startIndex,
@@ -263,6 +263,7 @@ function Labeling() {
             ? qaPairs.reverse().map((qaPairs, idx) => (
                 <div key={idx} className="history-card mb-15">
                   <div className="mb-5">問：{qaPairs.question}</div>
+                  {qaPairs.answer ? <div>答：{qaPairs.answer}</div> : ''}
                 </div>
               ))
             : ''}
