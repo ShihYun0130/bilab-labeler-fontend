@@ -150,20 +150,20 @@ function AddProjectPage(props) {
         res = await axios.put(`${MRC_BASEURL}/project?projectId=${projectId}`, arg);
         console.log('res data', res);
         alert('儲存成功');
+        window.location.reload();
       } catch (err) {
         alert(err);
       }
-      window.location.reload();
       return
     }
     try {
       res = await axios.post(`${MRC_BASEURL}/project`, arg);
       console.log('res data', res);
       alert('儲存成功');
+      window.location.reload();
     } catch (err) {
       alert(err);
     }
-    window.location.reload();
     return
   };
 
@@ -188,6 +188,7 @@ function AddProjectPage(props) {
     const reader = new FileReader();
     reader.onload = () => {
       csv.parse(reader.result, (err, data) => {
+        data = data.filter(item => item[0] && item[0].length > 100 && item[1])
         setCsvFile(data);
       });
     };
@@ -278,6 +279,7 @@ function AddProjectPage(props) {
               <AlertTitle>MRC上傳格式</AlertTitle>
               • 只提供.csv格式的資料集，且大小<strong>不可以超過10MB</strong><br/>
               • csv檔請勿包含Header在第一行<br/>
+              • 系統會過濾掉字數小於100的文章<br/>
               • 每行請以 <strong>文章內容, 文章編號-段數編號</strong> 格式保存<br/>
               <span className="examples">ex: 這是編號第5566篇文章的第一段內容, 5566-0</span>
             </Alert>
