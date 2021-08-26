@@ -221,7 +221,7 @@ function Labeling() {
           className="working-article-content body-padding"
           onMouseUp={mouseUpHandler}
         >
-          {task ? highlight(task.content, matched_substring) : ''}
+          {task.content ? task.content : ''}
         </div>
         <div className="justify-start mb-30 body-padding">
           <div className="nowrap mr-10">問題：</div>
