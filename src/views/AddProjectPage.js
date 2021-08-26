@@ -12,9 +12,11 @@ import csv from 'csv';
 import Dropzone from 'react-dropzone';
 import { useSelector } from 'react-redux';
 import { Modal } from 'react-responsive-modal';
+import {Alert, AlertTitle} from '@material-ui/lab';
 
 function AddProjectPage(props) {
   const profileObj = useSelector((state) => state.accountReducer.profileObj);
+  const userId = useSelector((state) => state.accountReducer.userId);
 
   const defaultAddProjectObj = {
     projectName: '康健雜誌 MRC',
@@ -38,7 +40,7 @@ function AddProjectPage(props) {
   const [labelInfo, setLabelInfo] = useState(defaultAddProjectObj.labelInfo);
   const [admins, setAdmins] = useState([
     {
-      value: profileObj.googleId,
+      value: userId,
       label: profileObj.name + ' - ' + profileObj.email,
     },
   ]);
@@ -54,7 +56,7 @@ function AddProjectPage(props) {
       setUsers(
         res.data.map((projectUser) => {
           return {
-            value: projectUser.userId,
+            value: projectUser._id,
             label: projectUser.name + ' - ' + projectUser.email,
           };
         })
@@ -63,23 +65,20 @@ function AddProjectPage(props) {
 
     // get users in the project and set list.
     const getProjectUsers = async (projectId) => {
-      let arg = {
-        projectId: String(projectId),
-      };
-      const res = await axios.get(`${MRC_BASEURL}/projectUsers`, arg);
+      const res = await axios.get(`${MRC_BASEURL}/projectUsers?projectId=${projectId}`);
       if (res.data && res.data.length > 0) {
         var tempWorkers = [];
         let tempAdmins = [];
         res.data.forEach((projectUser) => {
-          if (projectUser.statusCode == '1') {
+          if (projectUser.statusCode === '1') {
             tempAdmins.push({
-              value: projectUser._id,
-              label: projectUser.name + ' - ' + projectUser.email,
+              value: projectUser.userId._id,
+              label: projectUser.userId.name + ' - ' + projectUser.userId.email,
             });
           } else {
             tempWorkers.push({
-              value: projectUser._id,
-              label: projectUser.name + ' - ' + projectUser.email,
+              value: projectUser.userId._id,
+              label: projectUser.userId.name + ' - ' + projectUser.userId.email,
             });
           }
         });
@@ -113,6 +112,7 @@ function AddProjectPage(props) {
   };
 
   const saveProject = async () => {
+    console.log('[debug] userId:', userId);
     console.log('[debug] projectType:', projectType);
     console.log('[debug] admins:', admins);
     console.log('[debug] workers:', workers);
@@ -124,33 +124,47 @@ function AddProjectPage(props) {
       alert('需要填寫專案說明');
       return;
     }
+    if (!checkExistProjectOwner()) {
+      alert('請至少選取一位成員作為管理者');
+      return;
+    }
     if (!props.isEdit && (!fileObj.fileName || !csvFile)) {
       alert('請確實上傳正確格式的檔案與檔案名稱');
       return;
     }
-    if (props.isEdit && !checkExistProjectOwner()) {
-      alert('請至少選取一位成員作為管理者');
-      return;
-    }
     let arg = {
-      project: {
-        projectName,
-        projectType,
-        labelInfo,
-      },
-      members: [...users], // insert both project owner and add members
-      csvFile,
+      type: projectType.value,
+      name: projectName,
+      rule: labelInfo,
+      managerId: userId,
+      admins: admins.map(admin => admin.value),
+      workers: workers.map(worker => worker.value),
+      csvFile: csvFile,
     };
     console.log(arg);
     let res = null;
+    if (props.isEdit) {
+      try{
+        let projectId = props.project.projectId;
+        console.log("[update] projectId", projectId, arg)
+        res = await axios.put(`${MRC_BASEURL}/project?projectId=${projectId}`, arg);
+        console.log('res data', res);
+        alert('儲存成功');
+      } catch (err) {
+        alert(err);
+      }
+      window.location.reload();
+      return
+    }
     try {
       res = await axios.post(`${MRC_BASEURL}/project`, arg);
       console.log('res data', res);
       alert('儲存成功');
     } catch (err) {
-      alert(err.response.data);
+      alert(err);
     }
-    props.onCloseCallback();
+    window.location.reload();
+    return
   };
 
   // textarea to be editable
@@ -259,6 +273,15 @@ function AddProjectPage(props) {
       </div>
       <div className="align-start body-padding mt-20">
         <div className="nowrap mb-10">上傳檔案：</div>
+          <div className="format-info mb-10">
+            <Alert severity="info">
+              <AlertTitle>MRC上傳格式</AlertTitle>
+              • 只提供.csv格式的資料集，且大小<strong>不可以超過10MB</strong><br/>
+              • csv檔請勿包含Header在第一行<br/>
+              • 每行請以 <strong>文章內容, 文章編號-段數編號</strong> 格式保存<br/>
+              <span className="examples">ex: 這是編號第5566篇文章的第一段內容, 5566-0</span>
+            </Alert>
+          </div>
         {fileObj.fileName !== '' ? (
           <div className="justify-center file-display" onClick={onCancelUpload}>
             <div className="flex-wrap mr-5">

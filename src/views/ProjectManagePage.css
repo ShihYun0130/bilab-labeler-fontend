@@ -25,6 +25,14 @@
   position: relative;
 }
 
+.format-info {
+  width: 100%;
+}
+
+.examples {
+  color: rgb(134, 134, 134)
+}
+
 .dropZone {
   cursor: pointer;
   height: 150px;
