@@ -9,6 +9,7 @@ import {
   RadioGroup,
   Radio,
   FormControlLabel,
+  Tooltip,
 } from '@material-ui/core';
 
 function ValidationPage() {
@@ -19,6 +20,46 @@ function ValidationPage() {
   const [validationAnswer, setValidationAnswer] = useState('');
   const [startIndex, setStartIndex] = useState(0);
   const [decisionResult, setDecisionResult] = useState('answer');
+
+const highlightText = (text, answer_pair, start, end, type) => {
+  const highlightTextStart = answer_pair.offset;
+  const highlightTextEnd = highlightTextStart + answer_pair.length;
+
+  // The part before matched text
+  const beforeText = text.slice(start, highlightTextStart);
+
+  // Matched text
+  const highlightedText = text.slice(highlightTextStart, highlightTextEnd);
+
+  // Part after matched text
+  // Till the end of text, or till next matched text
+  const afterText = text.slice(highlightTextEnd, end);
+
+  // Return in array of JSX elements
+  if(type == "a1"){
+    return [beforeText, <Tooltip title="這是第一個答案標註的文字"><span className="underline">{highlightedText}</span></Tooltip>, afterText];
+  }
+  else if (type == "a2"){
+    return [beforeText, <Tooltip title="這是第二個答案標註的文字"><span className="underline tdc-blue">{highlightedText}</span></Tooltip>, afterText];
+  }
+  return [beforeText, <Tooltip title="這是兩個標註者共同標註的文字"><span className="underline tdc-red">{highlightedText}</span></Tooltip>, afterText];
+};
+
+const highlight = (text, answer_pairs) => {
+  const returnText = [];
+  // Just iterate through all matches
+  for (let i = 0; i < answer_pairs.length; i++) {
+      const startOfNext = answer_pairs[i + 1]?answer_pairs[i + 1].offset:text.length;
+      if (i === 0) { // If its first match, we start from first character => start at index 0
+          returnText.push(highlightText(text, answer_pairs[i], 0, startOfNext, answer_pairs[i].type))
+      } else { // If its not first match, we start from match.offset 
+          returnText.push(highlightText(text, answer_pairs[i], answer_pairs[i].offset, startOfNext, answer_pairs[i].type))
+      }
+  }
+  return returnText.map((text, i) => <React.Fragment key={i}>{text}</React.Fragment>)
+};
+/*======== hightlight functions =============*/
+
 
   const handleDecisionChange = (event) => {
     console.log(event.target.value);
@@ -34,8 +75,10 @@ function ValidationPage() {
         params: { userId: userId },
       });
       // console.log('decision', res);
-      setDecision(res.data);
-      if (!res) {
+      if(res && res.data._id) {
+        setDecision(res.data);
+      }
+      else {
         const vali = await axios.get(`${MRC_BASEURL}/validation`, {
           params: { userId: userId },
         });
@@ -91,13 +134,13 @@ function ValidationPage() {
       ) : decision ? (
         <div className="working-area-container overflow-scroll validation-working-area">
           <div className="working-article-title body-padding">
-            {decision.taskId.title}
+            {decision.taskId.title.slice(0, 50)}
           </div>
           <div
             className="working-article-content body-padding"
             onMouseUp={mouseUpHandler}
           >
-            {decision.taskId.content}
+            {highlight(decision.taskId.content, decision.answerPair)}
           </div>
           <div className="justify-start mb-30 body-padding">
             <div className="nowrap mr-10">問題：</div>
@@ -105,7 +148,7 @@ function ValidationPage() {
           </div>
           <div className="justify-start mb-30 body-padding">
             <FormControl component="fieldset">
-              <div class="radio-title">請選出下列較符合的答案：</div>
+              <div className="radio-title">請選出下列較符合的答案：</div>
               <RadioGroup
                 name="decision"
                 value={decisionResult}

@@ -151,3 +151,11 @@
   text-decoration-color: rgb(110, 161, 216);
   text-decoration-thickness: 4px;
 }
+
+.tdc-blue {
+  text-decoration-color: rgb(110, 161, 216);
+}
+
+.tdc-red {
+  text-decoration-color: rgb(216, 110, 110);
+}
