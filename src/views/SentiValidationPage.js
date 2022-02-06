@@ -1,6 +1,8 @@
 import { Link, useParams, useRouteMatch, useHistory } from "react-router-dom";
 import './SentiLabeling.css'
 import { fakeAspectDB } from './fakeData'
+import React from 'react';
+import Tooltip from '@material-ui/core/Tooltip';
 import {useEffect, useState} from 'react';
 import axios from 'axios';
 import { BASEURL } from "../config";
@@ -73,24 +75,19 @@ function SentiValid() {
       // let idNo = articleId.replace("articleId", "")
       // let taskId = "taskId"+idNo+"-"+idx
       const arg = {
-        taskId: task.taskId,
+        _id: task.taskId,
         taskType: "sentiment",
         userId: profileObj.googleId
       }
 
-      console.log("getSentiTask arg", arg)
+      // console.log("getSentiTask arg", arg)
       
       const res = await axios.post(`${BASEURL}/getSentiAspects`, arg);
-
-      console.log(res)
-      // const res = fakeAspectDB
-      // console.log('labeling: getSentiAspect api', res);
-      // setTask(res.data);
       setAspectList(res.data);
       
       let tempDict = []
       if(sentimentDict.length === 0){
-        console.log("有再組裝", aspectList)
+        // console.log("有再組裝", aspectList)
         res.data.map((aspectItem, idx) => {
           tempDict = [
             ...tempDict,
@@ -101,16 +98,8 @@ function SentiValid() {
           ]
           //console.info(sentimentDict)
         })
-        // console.log(sentimentDict.length)
-        // if(aspectList.length===0){
-        //   console.log("now empty",res.data)
-        //   setAspectList(res.data);
-        // } else{
-        //   console.log("now exists",res.data)
-        //   setSentimentDict(tempDict)
-        // }
         setSentimentDict(tempDict)
-        console.info(sentimentDict)
+        // console.info(sentimentDict)
       }
       
     }
@@ -122,6 +111,81 @@ function SentiValid() {
     }
   },[articleId, idx, profileObj.googleId, aspectList, isTaskSet])
   
+    /*======== hightlight functions =============*/
+    const highlightText = (text, matched_substring, start, end) => {
+      const highlightTextStart = matched_substring.offset;
+      const highlightTextEnd = highlightTextStart + matched_substring.length;
+  
+      // The part before matched text
+      const beforeText = text.slice(start, highlightTextStart);
+  
+      // Matched text
+      const highlightedText = text.slice(highlightTextStart, highlightTextEnd);
+  
+      // Part after matched text
+      // Till the end of text, or till next matched text
+      const afterText = text.slice(highlightTextEnd, text.length);
+  
+      // Return in array of JSX elements
+      return [
+        beforeText,
+        <Tooltip title="這是你之前已標註過的文字">
+          <span className="underline">{highlightedText}</span>
+        </Tooltip>,
+        afterText,
+      ];
+    };
+  
+    const highlight = (text, matched_substrings) => {
+      const returnText = [];
+      if(matched_substrings == ""){
+        var matched_substring = { offset: 0, length: 0 }
+      }
+      else if(matched_substrings.offset == -1){
+        var matched_substring = { offset: 0, length: 0 }
+      }
+      else{
+        console.info("生成match substring: ", matched_substrings.offset, matched_substrings.aspect )
+        var matched_substring = { offset:matched_substrings.offset, length:matched_substrings.minorAspect.length}
+      }
+      const startOfNext = matched_substring.offset;
+      console.info("highlight Text", text, matched_substrings, matched_substring, startOfNext)
+      returnText.push(
+        highlightText(
+          text,
+          matched_substring,
+          0,
+          startOfNext
+        )
+      );
+        
+  
+      // Just iterate through all matches
+      // for (let i = 0; i < matched_substrings.length; i++) {
+      //   const startOfNext = matched_substrings[i + 1]?.offset;
+      //   if (i === 0) {
+      //     // If its first match, we start from first character => start at index 0
+      //     returnText.push(
+      //       highlightText(text, matched_substrings[i], 0, startOfNext)
+      //     );
+      //   } else {
+      //     // If its not first match, we start from match.offset
+      //     returnText.push(
+      //       highlightText(
+      //         text,
+      //         matched_substrings[i],
+      //         matched_substrings[i].offset,
+      //         startOfNext
+      //       )
+      //     );
+      //   }
+      // }
+  
+      return returnText.map((text, i) => (
+        <React.Fragment key={i}>{text}</React.Fragment>
+      ));
+    };
+
   const sendValidation = async () => {
     // let newAspectList = []
     let newSentiList = []
@@ -131,7 +195,7 @@ function SentiValid() {
       oneAspect.sentimentList.map((oneSenti, idx) =>{
         newSentiList = [...newSentiList,{
           taskId: task.taskId,
-          aspectId: oneAspect.aspectId.toString(), 
+          aspectId: oneAspect.aspectId, 
           offset: oneSenti.offset,
           sentiment: oneSenti.text,
           dir: oneSenti.dir
@@ -140,14 +204,25 @@ function SentiValid() {
     })
     // console.info(newAspectList);
     // console.info(newSentiList);
-    
-    let newAnswer = {task:task, aspect:aspectList, sentiment:newSentiList, projectId:focusProject.projectId.toString()}
-    // console.log(newAnswer);
+    let new_task = {
+      aspectPool:task.aspectPool,
+      context:task.context,
+      articleId:task.articleId,
+      isAnswered:task.isAnswered,
+      projectId:focusProject.projectId,
+      _id:task.taskId,
+      taskTitle:task.taskTitle,
+      taskType:task.taskType,
+
+    }
+    let newAnswer = {task:new_task, aspect:aspectList, sentiment:newSentiList, projectId:focusProject.projectId}
+
+    console.log("newAnswer : ",newAnswer);
     const res = await axios.post(`${BASEURL}/postSentiValidation`, newAnswer)
-    console.log('sentiLabeling: postSentiValidation api', res)
+    // console.log('sentiLabeling: postSentiValidation api', res)
   }
   const discardAnswer = async () => {
-    let query = {taskId:task.taskId}
+    let query = {_id:task.taskId}
     console.log('senti valid: discard api', query)
     const res = await axios.post(`${BASEURL}/discardSentiAnswer`, query)
     console.log('senti valid: discard api', res)
@@ -189,9 +264,6 @@ function SentiValid() {
     // console.info(majorAspect);
   };
   const chooseAspect = (aspectItem) => {
-    // console.log(aspectItem, sentimentDict,sentimentDict.filter( item => {
-    //   return(item.aspectId === aspectItem.aspectId)
-    // }))
     setChosenAspect(aspectItem)
     setSentimentList(sentimentDict.filter( item => {
       return(item.aspectId === aspectItem.aspectId)
@@ -271,12 +343,12 @@ function SentiValid() {
         return
     }
   };
-  const resetAnswer = (isLast) => {
+  const resetAnswer = async(isLast) => {
     if(sentimentList.length !== 0){  
       
       if(isLast === 1){
         // saveAnswer();
-        sendValidation();
+        await sendValidation();
         setSentimentList([]);
         setSentimentDict([])
         setSentiButtonCss({status:0, css:"sentiment-label-button"});
@@ -285,7 +357,7 @@ function SentiValid() {
       }
       else{
         // saveAnswer();
-        discardAnswer();
+        await discardAnswer();
         setSentimentList([]);
         setSentimentDict([])
         setSentiButtonCss({status:0, css:"sentiment-label-button"});
@@ -339,7 +411,8 @@ function SentiValid() {
       <div className="senti-working-area-container overflow-scroll">
         <div className="senti-back-button" onClick={() => history.push(`/Sentimental/Label/${articleId}`)}>〈 回上一層 </div>
         <div className="senti-working-article-title body-padding">{task ? task.taskTitle : ""}</div>
-        <div className="senti-working-article-content body-padding" onMouseUp={mouseUpHandler}>{task ? task.context : ""}</div>
+        <div className="senti-working-article-content body-padding" onMouseUp={mouseUpHandler}>{task.taskId!=="0" ? highlight(task.context, chosenAspect) : ""}</div>
+        {/* <div className="senti-working-article-content body-padding" onMouseUp={mouseUpHandler}>{task ? task.context: ""}</div> */}
         
         
         
@@ -380,7 +453,7 @@ function SentiValid() {
           <div onClick = {() => resetAnswer(1)} className="finish-button">標註完成，前往下一段</div>
         }
         {(idx == taskInfo.totalTaskNum-1) &&
-          <div onClick = {() => resetAnswer(0)} className="finish-button">標註完成</div>
+          <div onClick = {() => (0)} className="finish-button">標註完成</div>
         } */}
         {/* {(paragraph <= maxParagraph) ? 
             (<Link to={`/Sentimental/Label/${articleTitle}/${parseInt(paragraph)+1}`}>

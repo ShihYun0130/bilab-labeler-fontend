@@ -1,4 +1,4 @@
-import { Link, useRouteMatch, useHistory } from "react-router-dom";
+import { Link, useRouteMatch, useHistory , useParams} from "react-router-dom";
 import './SentiLabeling.css'
 import { fakeAspectPool } from './fakeData'
 import {useEffect, useState} from 'react';
@@ -25,6 +25,7 @@ function SentiLabeling() {
   let { params } = useRouteMatch();
   let { projectId, articleId, idx } = params;
   let {articleTitle, paragraph} = params;
+  let { idx: taskId } = useParams();
   const focusProject = useSelector(state => state.projectReducer.focusProject);
 
   const [tempPool, setTempPool] = useState([]);
@@ -39,7 +40,11 @@ function SentiLabeling() {
   const [startId, setStartId] = useState(0);
 
   const profileObj = useSelector(state => state.accountReducer.profileObj);
+  const userId = useSelector((state) => state.accountReducer.userId);
+  const taskList = useSelector((state) => state.taskReducer.tasks);
   const [task, setTask] = useState();
+  
+
   const maxParagraph = 10;
 
   const classes = useStyles();
@@ -48,17 +53,21 @@ function SentiLabeling() {
   useEffect(() => {
     const getSentiTask = async () => {
       
-      let idNo = articleId.replace("articleId", "")
-      let taskId = "taskId"+idNo+"-"+idx
+      // let idNo = articleId;
+
+      console.log(taskList, taskId)
+      // let taskId = taskList[taskId].taskId
+      
       const arg = {
-        articleId: articleId,
-        taskId: taskId,
+        // articleId: articleId.replace('articleId', ''),
+        _id: taskList[taskId]._id,
         taskType: "sentiment",
         userId: profileObj.googleId
       }
-      // console.log("getSentiTask arg", arg)
+      console.log("getSentiTask arg", arg)
       const res = await axios.post(`${BASEURL}/getSentiTask`, arg);
-      // console.log('labeling: getSentiTask api', res);
+      console.log('labeling: getSentiTask api', res);
+
       setTask(res.data);
       setTempPool(res.data.aspectPool);
 
@@ -69,11 +78,11 @@ function SentiLabeling() {
   const saveAnswer = async () => {
     let newAspectList = []
     let newSentiList = []
-    let idNo = articleId.replace("articleId", "")
-    let taskId = "taskId"+idNo+"-"+idx
+    // let idNo = articleId.replace("articleId", "")
+    // let taskId = taskList[taskId].taskId
     totalAnswer.map((oneAspect, idx) => {
       newAspectList = [...newAspectList, {
-        taskId: taskId.toString(), 
+        taskId: taskList[taskId]._id, 
         aspectId: oneAspect.id.toString(),
         offset: oneAspect.minorAspect.offset,
         majorAspect:oneAspect.majorAspect,
@@ -81,7 +90,7 @@ function SentiLabeling() {
       }]
       oneAspect.sentimentList.map((oneSenti, idx) =>{
         newSentiList = [...newSentiList,{
-          taskId: taskId.toString(), 
+          taskId: taskList[taskId]._id, 
           aspectId: oneAspect.id.toString(),
           offset: oneSenti.offset,
           sentiment: oneSenti.text,
@@ -92,10 +101,11 @@ function SentiLabeling() {
     // console.info(newAspectList);
     // console.info(newSentiList);
     let newAnswer = {aspect:newAspectList, sentiment:newSentiList}
+    // console.log('newAnswer : ', newAnswer)
     const res = await axios.post(`${BASEURL}/saveSentiAnswer`, newAnswer)
     let newAnswer2 = {userId:profileObj.googleId, taskType:"sentiment", articleId:articleId}
     const res2 = await axios.post(`${BASEURL}/checkIsAnswered`, newAnswer2)
-    console.log('sentiLabeling: saveAnswer api', res)
+    // console.log('sentiLabeling: saveAnswer api', res)
   }
   
   const chooseMajor = (major) => {
@@ -232,9 +242,9 @@ function SentiLabeling() {
         return
     }
   };
-  const resetAnswer = (isLast) => {
+  const resetAnswer = async(isLast) => {
     if(totalAnswer.length !== 0){
-      saveAnswer();
+      await saveAnswer();
       setTotalAnswer([]);
       setMajorAspect("");
       setMinorAspect({offset:"", text:""});
@@ -244,6 +254,9 @@ function SentiLabeling() {
       setStartId(0);
       if(isLast === 1){
         history.push(`/sentiment/Label/${projectId}/${articleId}/${parseInt(idx) + 1}`);
+      }
+      else{
+        history.push(`/sentiment/Label/${projectId}`);
       }
     }
     else{
@@ -257,6 +270,9 @@ function SentiLabeling() {
       setStartId(0);
       if(isLast === 1){
         history.push(`/sentiment/Label/${projectId}/${articleId}/${parseInt(idx) + 1}`);
+      }
+      else{
+        history.push(`/sentiment/Label/${projectId}`);
       }
 
     }
@@ -361,16 +377,18 @@ function SentiLabeling() {
           ))}
         </div>
         
-        {(idx < taskInfo.totalTaskNum-1) &&
+        {taskList.length - 1 > taskId &&  
+          <div onClick = {() => resetAnswer(1)} className="finish-button">標註完成，前往下一段</div>
+        }
+        {taskList.length - 1 == taskId &&  
+          <div onClick = {() => resetAnswer(0)} className="finish-button">標註完成</div>
+        }
+        {/* {(idx < taskInfo.totalTaskNum-1) &&
           <div onClick = {() => resetAnswer(1)} className="finish-button">標註完成，前往下一段</div>
         }
         {(idx == taskInfo.totalTaskNum-1) &&
           <div onClick = {() => resetAnswer(0)} className="finish-button">標註完成</div>
-        }
-        {/* {(paragraph <= maxParagraph) ? 
-            (<Link to={`/Sentimental/Label/${articleTitle}/${parseInt(paragraph)+1}`}>
-              <div onClick = {() => resetAnswer()} className="finish-button">標註完成，前往下一段</div>
-            </Link>):null} */}
+        } */}
       </div>
     </div>
   )
